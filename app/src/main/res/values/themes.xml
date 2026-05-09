@@ -1,0 +1,26 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Grizzly" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorSurface">@color/viridian_18</item>
+        <item name="colorOnSurface">@color/shell_10</item>
+        <item name="colorPrimary">@color/honeydew_10</item>
+        <item name="colorOnPrimary">@color/honeydew_19</item>
+        <item name="colorOutlineVariant">@color/viridian_5</item>
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
+    </style>
+
+
+    <style name="Widget.App.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Toolbar</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Toolbar" parent="">
+        <item name="titleTextColor">@color/shell_10</item>
+    </style>
+
+    <style name="Theme.Grizzly" parent="Base.Theme.Grizzly" />
+</resources>
