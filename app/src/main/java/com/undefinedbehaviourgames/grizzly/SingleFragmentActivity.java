@@ -1,5 +1,6 @@
 package com.undefinedbehaviourgames.grizzly;
 
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -20,12 +21,25 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
         setContentView(R.layout.fragment_container);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.single_fragment_container), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, 0, systemBars.right, 0);
             return insets;
         });
 
+        //make status bar icons and text light color
         WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView())
                 .setAppearanceLightStatusBars(false);
+
+        //make status bar icons and text light color
+        WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView())
+                .setAppearanceLightNavigationBars(false);
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getWindow().setNavigationBarContrastEnforced(false);
+        } else {
+            getWindow().setNavigationBarColor(getColor(R.color.viridian_18));
+        }
+
 
         FragmentManager fm = getSupportFragmentManager();
 
@@ -37,6 +51,19 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
             fm.beginTransaction().add(R.id.single_fragment_container, frag).commit();
 
         }
+
+        AccountLab.get().add(Account.getInstance(R.drawable.apple_music, "My Apple Music Account", "apple music"));
+        AccountLab.get().add(Account.getInstance(R.drawable.spotify, "My Spotify Account", "spotify"));
+        AccountLab.get().add(Account.getInstance(R.drawable.youtube, "My Youtube Music Account", "youtube music"));
+        AccountLab.get().add(Account.getInstance(R.drawable.apple_music, "My Apple Music Account", "apple music"));
+        AccountLab.get().add(Account.getInstance(R.drawable.spotify, "My Spotify Account", "spotify"));
+        AccountLab.get().add(Account.getInstance(R.drawable.youtube, "My Youtube Music Account", "youtube music"));
+        AccountLab.get().add(Account.getInstance(R.drawable.apple_music, "My Apple Music Account", "apple music"));
+        AccountLab.get().add(Account.getInstance(R.drawable.spotify, "My Spotify Account", "spotify"));
+        AccountLab.get().add(Account.getInstance(R.drawable.youtube, "My Youtube Music Account", "youtube music"));
+        AccountLab.get().add(Account.getInstance(R.drawable.apple_music, "My Apple Music Account", "apple music"));
+        AccountLab.get().add(Account.getInstance(R.drawable.spotify, "My Spotify Account", "spotify"));
+        AccountLab.get().add(Account.getInstance(R.drawable.youtube, "My Youtube Music Account", "youtube music"));
 
     }
 

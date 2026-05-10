@@ -13,7 +13,4 @@
         android:minHeight="?attr/actionBarSize"
         app:titleCentered="true"
         app:title="Grizzly"/>
-    <com.google.android.material.divider.MaterialDivider
-        android:layout_width="wrap_content"
-        android:layout_height="1dp"/>
 </com.google.android.material.appbar.AppBarLayout>

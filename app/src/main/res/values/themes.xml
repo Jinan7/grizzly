@@ -6,21 +6,107 @@
         <item name="colorSurface">@color/viridian_18</item>
         <item name="colorOnSurface">@color/shell_10</item>
         <item name="colorPrimary">@color/honeydew_10</item>
+        <item name="android:textColor">@color/shell_10</item>
+        <item name="colorOnSurfaceVariant">@color/shell_12</item>
         <item name="colorOnPrimary">@color/honeydew_19</item>
         <item name="colorOutlineVariant">@color/viridian_5</item>
-        <item name="android:statusBarColor">?attr/colorSurface</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigationView</item>
         <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
+        <item name="extendedFloatingActionButtonStyle">@style/Widget.App.ExtendedFloatingActionButton</item>
+        <item name="floatingActionButtonStyle">@style/Widget.App.FloatingActionButton</item>
+        <item name="materialCardViewStyle">@style/Widget.App.CardView</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
     </style>
 
 
+    <!--    Toolbar styles -->
     <style name="Widget.App.Toolbar" parent="Widget.Material3.Toolbar">
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.Toolbar</item>
     </style>
 
     <style name="ThemeOverlay.App.Toolbar" parent="">
+        <item name="colorSurface">@color/viridian_18</item>
+        <item name="colorOnSurface">@color/shell_10</item>
         <item name="titleTextColor">@color/shell_10</item>
     </style>
 
+    <!--    Bottom nav bar style    -->
+    <style name="Widget.App.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.BottomNavigationView</item>
+    </style>
+
+    <style name="ThemeOverlay.App.BottomNavigationView" parent="">
+        <item name="colorSurface">@color/viridian_18</item>
+        <!--        icon and text color for unselected item -->
+        <item name="colorOnSurfaceVariant">@color/shell_12</item>
+        <!--        background color -->
+        <item name="colorSurfaceContainer">@color/viridian_18</item>
+        <!--        text color for selected item -->
+        <item name="colorSecondary">@color/shell_10</item>
+        <!--        background color for selected item -->
+        <item name="colorSecondaryContainer">@color/honeydew_10</item>
+        <!--        icon color for selected item -->
+        <item name="colorOnSecondaryContainer">@color/honeydew_19</item>
+    </style>
+
+    <!--    Fab Style   -->
+    <style name="Widget.App.ExtendedFloatingActionButton" parent="Widget.Material3.ExtendedFloatingActionButton.Icon.Primary">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.FloatingActionButton</item>
+    </style>
+
+    <style name="Widget.App.FloatingActionButton" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.FloatingActionButton</item>
+    </style>
+
+    <style name="ThemeOverlay.App.FloatingActionButton" parent="">
+        <item name="colorContainer">@color/honeydew_10</item>
+        <item name="colorOnContainer">@color/honeydew_19</item>
+    </style>
+
+    <!--    my account card -->
+    <style name="Widget.App.CardView" parent="Widget.Material3.CardView.Elevated">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Card</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Corner.Medium</item>
+    </style>
+    <style name="ShapeAppearance.App.Corner.Medium" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerFamily">cut</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Card" parent="">
+        <item name="colorSecondary">@color/viridian_10</item>
+        <item name="colorSurfaceContainer">@color/viridian_10</item>
+        <item name="colorOnSurfaceVariant">@color/viridian_10</item>
+    </style>
     <style name="Theme.Grizzly" parent="Base.Theme.Grizzly" />
+
+    <!--    Add account dialog box -->
+    <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorPrimary">@color/viridian_10</item>
+        <item name="colorSecondary">@color/viridian_9</item>
+        <item name="colorSurface">@color/viridian_8</item>
+        <item name="colorOnSurface">@color/shell_10</item>
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.App</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.App.Title.Text</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.App.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.App.Button</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App" parent="MaterialAlertDialog.Material3">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</item>
+        <item name="shapeAppearanceOverlay">@null</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.Title.Text" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textColor">@color/shell_10</item>
+    </style>
+
+    <style name="Widget.App.Button" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/shell_10</item>
+    </style>
+
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
 </resources>

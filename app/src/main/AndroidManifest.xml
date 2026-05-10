@@ -12,9 +12,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Grizzly">
         <activity
-            android:name=".MainFragment"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
