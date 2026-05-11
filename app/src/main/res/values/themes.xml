@@ -16,6 +16,7 @@
         <item name="floatingActionButtonStyle">@style/Widget.App.FloatingActionButton</item>
         <item name="materialCardViewStyle">@style/Widget.App.CardView</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
+        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
     </style>
 
 
@@ -108,5 +109,41 @@
     <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">8dp</item>
+    </style>
+
+
+    <!--    TextFields -->
+
+    <style name="Widget.App.TextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.TextInputLayout</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Corner.ExtraSmall</item>
+        <item name="hintTextColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="ThemeOverlay.App.TextInputLayout" parent="">
+        <item name="colorSurfaceContainerHighest">@color/shell_10</item>
+        <item name="colorPrimary">@color/shell_19</item>
+        <item name="colorOnSurface">@color/shell_19</item>
+        <item name="colorOnSurfaceVariant">@color/shell_19</item>
+        <item name="colorOnPrimary">@color/shell_19</item>
+        <item name="colorError">@android:color/holo_red_dark</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.App.TitleMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.App.BodySmall</item>
+        <item name="editTextStyle">@style/Widget.Material3.TextInputEditText.FilledBox</item>
+    </style>
+
+    <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+<!--        <item name="fontFamily">@font/rubik</item>-->
+<!--        <item name="android:fontFamily">@font/rubik</item>-->
+    </style>
+
+    <style name="TextAppearance.App.BodySmall" parent="TextAppearance.Material3.BodySmall">
+<!--        <item name="fontFamily">@font/rubik</item>-->
+<!--        <item name="android:fontFamily">@font/rubik</item>-->
+    </style>
+
+    <style name="ShapeAppearance.App.Corner.ExtraSmall" parent="ShapeAppearance.Material3.Corner.ExtraSmall">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">4dp</item>
     </style>
 </resources>

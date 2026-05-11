@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sign_in_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/component_sign_in_toolbar"/>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_above="@id/bottom_nav_view"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/sign_in_account_icon"
+                android:src="@drawable/youtube"
+                android:layout_marginTop="100dp"
+                android:scaleType="fitXY"
+                android:layout_width="70dp"
+                android:layout_height="70dp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:hint="Email"
+                android:id="@+id/sign_in_email_text_field"
+                app:errorEnabled="true"
+                android:layout_marginTop="100dp"
+                android:layout_marginHorizontal="32dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:hint="Password"
+                app:errorEnabled="true"
+                android:id="@+id/sign_in_password_text_field"
+                android:layout_marginHorizontal="32dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sign_in_button"
+                android:text="Sign In"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="24dp"/>
+        </LinearLayout>
+        <include layout="@layout/component_bottom_nav_view"
+            android:id="@+id/bottom_nav_view"/>
+    </RelativeLayout>
+
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

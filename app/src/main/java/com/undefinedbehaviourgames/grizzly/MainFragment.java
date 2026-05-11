@@ -1,7 +1,10 @@
 package com.undefinedbehaviourgames.grizzly;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +31,9 @@ import java.util.List;
 
 public class MainFragment extends Fragment {
 
+    private static final String TAG = "MainFragmentLogger";
     private static final String ADD_ACCOUNT_DIALOG_TAG = "add account dialog";
+    private static final int ADD_ACCOUNT_REQUEST_CODE = 0;
     private AppBarLayout mAppBarLayout;
     private RecyclerView mAccountRecyclerView;
     private FloatingActionButton mFloatingActionButton;
@@ -55,6 +60,7 @@ public class MainFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 AddAccountDialog dialog = AddAccountDialog.newInstance();
+                dialog.setTargetFragment(MainFragment.this, ADD_ACCOUNT_REQUEST_CODE);
                 dialog.show(getParentFragmentManager(), ADD_ACCOUNT_DIALOG_TAG);
             }
         });
@@ -62,9 +68,22 @@ public class MainFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (resultCode != Activity.RESULT_OK) return;
 
-    private class AccountHolder extends RecyclerView.ViewHolder {
+        switch (requestCode) {
+
+            case ADD_ACCOUNT_REQUEST_CODE:
+                Intent intent = new Intent(getActivity(), SignInActivity.class);
+                startActivity(intent);
+                break;
+        }
+    }
+
+    private class AccountHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private ImageView mAccountIcon;
         private TextView mAccountName;
@@ -72,6 +91,7 @@ public class MainFragment extends Fragment {
         public AccountHolder(@NonNull View itemView) {
             super(itemView);
 
+            itemView.setOnClickListener(this);
             mAccountIcon = (ImageView) itemView.findViewById(R.id.account_icon);
             mAccountName = (TextView) itemView.findViewById(R.id.account_name);
             mAccountMusicService = (TextView) itemView.findViewById(R.id.account_music_service_name);
@@ -81,6 +101,12 @@ public class MainFragment extends Fragment {
             mAccountIcon.setImageResource(account.getIconResourceId());
             mAccountName.setText(account.getAccountName());
             mAccountMusicService.setText(account.mMusicServiceName);
+        }
+
+        @Override
+        public void onClick(View v) {
+//            Intent intent = new Intent();
+//            intent.putExtra(EXTRA_MUSIC_PLATFORM, "youtube");
         }
     }
     private class AccountsAdapter extends RecyclerView.Adapter<AccountHolder> {
