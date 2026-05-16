@@ -4,7 +4,6 @@ import static android.widget.Toast.LENGTH_SHORT;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,25 +13,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.shape.MaterialShapeDrawable;
 
 import net.openid.appauth.AuthorizationResponse;
 
 import java.util.List;
+
+import spotify.SpotifyMusicPlatform;
 
 public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callbacks {
 
@@ -51,6 +45,11 @@ public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callb
         return fragment;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
@@ -139,6 +138,7 @@ public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callb
         private ImageView mAccountIcon;
         private TextView mAccountName;
         private  TextView mAccountMusicService;
+        private Account mAccount;
         public AccountHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -152,11 +152,13 @@ public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callb
             mAccountIcon.setImageResource(account.getIconResourceId());
             mAccountName.setText(account.getAccountName());
             mAccountMusicService.setText(account.getMusicServiceName());
+            mAccount = account;
         }
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(getContext(), UserLibraryActivity.class);
+
+            Intent intent = UserLibraryActivity.newIntent(getContext(), mAccount.getID());
             startActivity(intent);
         }
     }

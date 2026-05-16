@@ -1,6 +1,9 @@
-package com.undefinedbehaviourgames.grizzly;
+package spotify;
 
-public class SpotifyAccount extends Account{
+import com.undefinedbehaviourgames.grizzly.Account;
+import com.undefinedbehaviourgames.grizzly.R;
+
+public class SpotifyAccount extends Account {
 
     String display_name;
     String email;
@@ -17,6 +20,11 @@ public class SpotifyAccount extends Account{
         account.setAccountName("Spotify");
         account.setMusicServiceName("Spotify");
         return account;
+    }
+
+    @Override
+    public String getID() {
+        return id;
     }
 
     @Override

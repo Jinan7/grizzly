@@ -4,10 +4,10 @@ import java.util.UUID;
 
 public class Account {
 
-    UUID mUUID;
-    int mIconResourceId;
-    String mAccountName;
-    String mMusicServiceName;
+    public UUID mUUID;
+    public int mIconResourceId;
+    public String mAccountName;
+    public String mMusicServiceName;
 
     public Account() {
         mUUID = UUID.randomUUID();
@@ -26,6 +26,9 @@ public class Account {
         return mUUID;
     }
 
+    public String getID() {
+        return null;
+    }
     public int getIconResourceId() {
         return mIconResourceId;
     }

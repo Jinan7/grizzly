@@ -5,12 +5,14 @@ import android.app.Activity;
 
 import net.openid.appauth.AuthorizationResponse;
 
+import spotify.SpotifyMusicPlatform;
+
 public class MusicPlatform {
 
 
-    String TAG;
-    int mIconResourceId;
-    String mPlatformName;
+    public String TAG;
+    public int mIconResourceId;
+    public String mPlatformName;
 
     protected MusicPlatform() {
 
@@ -29,6 +31,9 @@ public class MusicPlatform {
     }
 
     public void signIn(AuthorizationResponse response, Callbacks callbacks){
+    }
+
+    public void fetchPlaylists(String userId, SpotifyMusicPlatform.PlaylistFetchTask.Callbacks callbacks) {
 
     }
     public int getIconResourceId() {
