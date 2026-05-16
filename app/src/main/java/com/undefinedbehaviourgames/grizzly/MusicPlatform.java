@@ -1,43 +1,36 @@
 package com.undefinedbehaviourgames.grizzly;
 
-enum Platforms {APPLE_MUSIC, SPOTIFY, YOUTUBE}
+
+import android.app.Activity;
+
+import net.openid.appauth.AuthorizationResponse;
+
 public class MusicPlatform {
 
-    public static class MusicPlatforms {
 
-        public static String youtube = "youtube";
-        public static String appleMusic = "apple music";
-        public static String spotify = "spotify";
-    }
-
-    String platform;
     String TAG;
     int mIconResourceId;
     String mPlatformName;
 
-    private MusicPlatform() {
+    protected MusicPlatform() {
+
+    }
+    public static MusicPlatform getInstance() {
+        return new MusicPlatform();
+    }
+
+    public void authorize(Activity activity) {
 
     }
 
-    public static MusicPlatform getInstance(int iconResourceId, String platformName, Platforms platform) {
-        MusicPlatform musicPlatform = new MusicPlatform();
-        musicPlatform.setIconResourceId(iconResourceId);
-        musicPlatform.setPlatformName(platformName);
 
-        switch (platform){
-            case SPOTIFY:
-                musicPlatform.setTAG(MusicPlatforms.spotify);
-                break;
-            case APPLE_MUSIC:
-                musicPlatform.setTAG(MusicPlatforms.appleMusic);
-                break;
-            case YOUTUBE:
-                musicPlatform.setTAG(MusicPlatforms.youtube);
-                break;
-        }
-        return musicPlatform;
+    public void configure() {
+
     }
 
+    public void signIn(AuthorizationResponse response, Callbacks callbacks){
+
+    }
     public int getIconResourceId() {
         return mIconResourceId;
     }
@@ -62,11 +55,10 @@ public class MusicPlatform {
         this.TAG = TAG;
     }
 
-    public String getPlatform() {
-        return platform;
+    public interface  Callbacks {
+        public void cancelSignIn();
+        public void onSignInFinished(Account account);
+        public void onSignInError();
     }
 
-    public void setPlatform(String platform) {
-        this.platform = platform;
-    }
 }

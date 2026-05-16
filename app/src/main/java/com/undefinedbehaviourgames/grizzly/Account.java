@@ -9,19 +9,18 @@ public class Account {
     String mAccountName;
     String mMusicServiceName;
 
-    private Account() {
+    public Account() {
         mUUID = UUID.randomUUID();
     }
     public static Account getInstance(int iconResourceId, String accountName, String musicServiceName) {
-
         Account account = new Account();
         account.setIconResourceId(iconResourceId);
         account.setAccountName(accountName);
         account.setMusicServiceName(musicServiceName);
-
         return account;
-
     }
+
+
 
     public UUID getUUID() {
         return mUUID;

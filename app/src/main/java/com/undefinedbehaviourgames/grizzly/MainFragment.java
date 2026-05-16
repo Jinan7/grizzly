@@ -1,5 +1,7 @@
 package com.undefinedbehaviourgames.grizzly;
 
+import static android.widget.Toast.LENGTH_SHORT;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -27,16 +30,21 @@ import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.shape.MaterialShapeDrawable;
 
+import net.openid.appauth.AuthorizationResponse;
+
 import java.util.List;
 
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callbacks {
 
     private static final String TAG = "MainFragmentLogger";
     private static final String ADD_ACCOUNT_DIALOG_TAG = "add account dialog";
+    private static final String CREATE_USER_DIALOG_TAG = "create user dialog";
     private static final int ADD_ACCOUNT_REQUEST_CODE = 0;
+    private static final int CREATE_USER_REQUEST_CODE = 1;
     private AppBarLayout mAppBarLayout;
     private RecyclerView mAccountRecyclerView;
     private FloatingActionButton mFloatingActionButton;
+    private CreateUserDialog mCreateUserDialog;
     public static MainFragment newInstance() {
 
         MainFragment fragment = new MainFragment();
@@ -51,6 +59,7 @@ public class MainFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_main,container,false);
 
         mAppBarLayout = (AppBarLayout) v.findViewById(R.id.toolbar_main);
+//        mAppBarLayout.setLiftOnScroll(false);
         mAccountRecyclerView = (RecyclerView) v.findViewById(R.id.music_accounts_recycler_view);
         mAccountRecyclerView.setAdapter(new AccountsAdapter(AccountLab.get().getAccounts()));
         mAccountRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -80,7 +89,49 @@ public class MainFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), SignInActivity.class);
                 startActivity(intent);
                 break;
+
+            case CREATE_USER_REQUEST_CODE:
+                Log.d(TAG, "cancelling sign in");
+                SpotifyMusicPlatform.getInstance(getContext()).cancel();
+                break;
+
+
         }
+    }
+
+    public void dismissDialog() {
+
+        if (mCreateUserDialog != null) {
+            mCreateUserDialog.dismiss();
+        }
+
+    }
+
+    public void signInNewUser(AuthorizationResponse response) {
+        Log.d(TAG, response.authorizationCode);
+        SpotifyMusicPlatform.getInstance(getContext()).signIn(response, MainFragment.this);
+        mCreateUserDialog = CreateUserDialog.newInstance();
+        mCreateUserDialog.setTargetFragment(MainFragment.this, CREATE_USER_REQUEST_CODE);
+        mCreateUserDialog.show(getParentFragmentManager(), CREATE_USER_DIALOG_TAG);
+    }
+
+    @Override
+    public void cancelSignIn() {
+        dismissDialog();
+    }
+
+    @Override
+    public void onSignInFinished(Account account) {
+        AccountLab.get().add(account);
+        mAccountRecyclerView.getAdapter().notifyDataSetChanged();
+        dismissDialog();
+    }
+
+    @Override
+    public void onSignInError() {
+
+        dismissDialog();
+        Toast.makeText(getContext(), "Could not complete sign in", LENGTH_SHORT).show();
     }
 
     private class AccountHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -100,13 +151,13 @@ public class MainFragment extends Fragment {
         public void bind(Account account) {
             mAccountIcon.setImageResource(account.getIconResourceId());
             mAccountName.setText(account.getAccountName());
-            mAccountMusicService.setText(account.mMusicServiceName);
+            mAccountMusicService.setText(account.getMusicServiceName());
         }
 
         @Override
         public void onClick(View v) {
-//            Intent intent = new Intent();
-//            intent.putExtra(EXTRA_MUSIC_PLATFORM, "youtube");
+            Intent intent = new Intent(getContext(), UserLibraryActivity.class);
+            startActivity(intent);
         }
     }
     private class AccountsAdapter extends RecyclerView.Adapter<AccountHolder> {
@@ -133,4 +184,5 @@ public class MainFragment extends Fragment {
             return mAccounts.size();
         }
     }
+
 }

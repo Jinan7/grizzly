@@ -14,6 +14,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        android.defaultConfig.manifestPlaceholders = [
+                'appAuthRedirectScheme': 'com.undefinedbehaviourgames.grizzly'
+        ]
     }
 
     buildTypes {
@@ -30,10 +33,12 @@ android {
 
 dependencies {
 
+    implementation 'com.squareup.retrofit2:converter-gson:3.0.0'
+    implementation 'com.squareup.retrofit2:retrofit:3.0.0'
     implementation 'com.google.android.material:material:1.13.0'
-
-
-
+    implementation 'commons-codec:commons-codec:1.22.0'
+    implementation 'net.openid:appauth:0.11.1'
+    implementation 'com.google.code.gson:gson:2.14.0'
     implementation libs.appcompat
     implementation libs.activity
     implementation libs.constraintlayout

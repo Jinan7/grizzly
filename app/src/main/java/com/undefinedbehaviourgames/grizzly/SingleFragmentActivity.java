@@ -52,18 +52,7 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
 
         }
 
-        AccountLab.get().add(Account.getInstance(R.drawable.apple_music, "My Apple Music Account", "apple music"));
-        AccountLab.get().add(Account.getInstance(R.drawable.spotify, "My Spotify Account", "spotify"));
-        AccountLab.get().add(Account.getInstance(R.drawable.youtube, "My Youtube Music Account", "youtube music"));
-        AccountLab.get().add(Account.getInstance(R.drawable.apple_music, "My Apple Music Account", "apple music"));
-        AccountLab.get().add(Account.getInstance(R.drawable.spotify, "My Spotify Account", "spotify"));
-        AccountLab.get().add(Account.getInstance(R.drawable.youtube, "My Youtube Music Account", "youtube music"));
-        AccountLab.get().add(Account.getInstance(R.drawable.apple_music, "My Apple Music Account", "apple music"));
-        AccountLab.get().add(Account.getInstance(R.drawable.spotify, "My Spotify Account", "spotify"));
-        AccountLab.get().add(Account.getInstance(R.drawable.youtube, "My Youtube Music Account", "youtube music"));
-        AccountLab.get().add(Account.getInstance(R.drawable.apple_music, "My Apple Music Account", "apple music"));
-        AccountLab.get().add(Account.getInstance(R.drawable.spotify, "My Spotify Account", "spotify"));
-        AccountLab.get().add(Account.getInstance(R.drawable.youtube, "My Youtube Music Account", "youtube music"));
+
 
     }
 

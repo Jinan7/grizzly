@@ -17,6 +17,7 @@
         <item name="materialCardViewStyle">@style/Widget.App.CardView</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
         <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
+        <item name="loadingIndicatorStyle">@style/loadingIndicator</item>
     </style>
 
 
@@ -86,6 +87,7 @@
         <item name="colorPrimary">@color/viridian_10</item>
         <item name="colorSecondary">@color/viridian_9</item>
         <item name="colorSurface">@color/viridian_8</item>
+        <item name="colorSurfaceContainerHigh">@color/viridian_8</item>
         <item name="colorOnSurface">@color/shell_10</item>
         <item name="alertDialogStyle">@style/MaterialAlertDialog.App</item>
         <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.App.Title.Text</item>
@@ -145,5 +147,12 @@
     <style name="ShapeAppearance.App.Corner.ExtraSmall" parent="ShapeAppearance.Material3.Corner.ExtraSmall">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">4dp</item>
+    </style>
+
+
+<!--    loading indicator style -->
+    <style name="loadingIndicator" parent="Widget.Material3.LoadingIndicator">
+        <item name="indicatorColor">@color/sky_10</item>
+        <item name="colorPrimary">@color/sky_10</item>
     </style>
 </resources>

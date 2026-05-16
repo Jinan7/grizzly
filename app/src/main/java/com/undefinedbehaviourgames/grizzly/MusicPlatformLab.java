@@ -1,6 +1,6 @@
 package com.undefinedbehaviourgames.grizzly;
 
-import com.undefinedbehaviourgames.grizzly.MusicPlatform.MusicPlatforms;
+import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,17 +10,17 @@ public class MusicPlatformLab {
 
     private static MusicPlatformLab sMusicPlatformLab;
     private List<MusicPlatform> mMusicPlatforms;
-    private MusicPlatformLab() {
+    private MusicPlatformLab(Context context) {
         mMusicPlatforms = new ArrayList<>();
-        mMusicPlatforms.add(MusicPlatform.getInstance(R.drawable.apple_music, "Apple Music", Platforms.APPLE_MUSIC));
-        mMusicPlatforms.add(MusicPlatform.getInstance(R.drawable.spotify, "Spotify", Platforms.SPOTIFY));
-        mMusicPlatforms.add(MusicPlatform.getInstance(R.drawable.youtube, "Youtube Music", Platforms.YOUTUBE));
+        mMusicPlatforms.add(SpotifyMusicPlatform.getInstance(context));
+        mMusicPlatforms.add(YoutubeMusicPlatform.getInstance(context));
+        mMusicPlatforms.add(AppleMusicPlatform.getInstance(context));
     }
 
-    public static MusicPlatformLab get() {
+    public static MusicPlatformLab get(Context context) {
 
         if (sMusicPlatformLab == null) {
-            sMusicPlatformLab = new MusicPlatformLab();
+            sMusicPlatformLab = new MusicPlatformLab(context);
         }
 
         return sMusicPlatformLab;

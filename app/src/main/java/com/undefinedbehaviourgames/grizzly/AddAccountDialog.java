@@ -1,9 +1,6 @@
 package com.undefinedbehaviourgames.grizzly;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.undefinedbehaviourgames.grizzly.MusicPlatform.MusicPlatforms;
+
 
 import java.util.List;
 
@@ -39,7 +36,7 @@ public class AddAccountDialog extends DialogFragment {
 
         View v = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_account, null, false);
         mRecyclerView = v.findViewById(R.id.music_platforms_recycler_view);
-        mRecyclerView.setAdapter(new MusicPlatformRecyclerAdapter(MusicPlatformLab.get().getMusicPlatforms()));
+        mRecyclerView.setAdapter(new MusicPlatformRecyclerAdapter(MusicPlatformLab.get(getContext()).getMusicPlatforms()));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         return new MaterialAlertDialogBuilder(getContext()).
@@ -79,10 +76,14 @@ public class AddAccountDialog extends DialogFragment {
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent();
-            intent.putExtra(EXTRA_MUSIC_PLATFORM, mMusicPlatform.getTAG());
-            getTargetFragment().onActivityResult(getTargetRequestCode(), MainActivity.RESULT_OK, intent);
+//            Intent intent = new Intent();
+//            intent.putExtra(EXTRA_MUSIC_PLATFORM, mMusicPlatform.getTAG());
+//            getTargetFragment().onActivityResult(getTargetRequestCode(), MainActivity.RESULT_OK, intent);
+
+
+            mMusicPlatform.authorize(getActivity());
             dismiss();
+
 
         }
     }
