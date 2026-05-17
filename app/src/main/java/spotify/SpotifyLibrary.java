@@ -7,9 +7,9 @@ import java.util.List;
 public class SpotifyLibrary {
 
     String href;
-    String limit;
+    int limit;
     String next;
-    String offset;
+    int offset;
     String previous;
     String total;
     String owner;
@@ -24,11 +24,11 @@ public class SpotifyLibrary {
         this.href = href;
     }
 
-    public String getLimit() {
+    public int getLimit() {
         return limit;
     }
 
-    public void setLimit(String limit) {
+    public void setLimit(int limit) {
         this.limit = limit;
     }
 
@@ -40,11 +40,11 @@ public class SpotifyLibrary {
         this.next = next;
     }
 
-    public String getOffset() {
+    public int getOffset() {
         return offset;
     }
 
-    public void setOffset(String offset) {
+    public void setOffset(int offset) {
         this.offset = offset;
     }
 

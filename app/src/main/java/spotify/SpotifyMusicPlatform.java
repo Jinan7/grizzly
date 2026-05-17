@@ -40,6 +40,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.Query;
 
 public class SpotifyMusicPlatform extends MusicPlatform {
 
@@ -285,7 +286,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         //start a new request if the current loaded playlist does not belong to the requesting user or
         //the current loaded playlist belongs to a null user
         //the current fetched playlist is incomplete
-        if (playlistLabUserId == null || playlistLabUserId != userId || PlaylistLab.getInstance().getState() != State.FETCHED || !PlaylistLab.getInstance().fetchComplete())
+        if (playlistLabUserId == null || !playlistLabUserId.equals(userId) || PlaylistLab.getInstance().getState() != State.FETCHED)
         {
             //set total to -1 for pass fetchComplete() test in case anything goes wrong
             //if this is not set and an error occurs before any fetch is made
@@ -299,27 +300,42 @@ public class SpotifyMusicPlatform extends MusicPlatform {
             PlaylistLab.getInstance().setState(State.FETCHING);
             PlaylistLab.getInstance().setUserId(userId);
             PlaylistLab.getInstance().setPlaylist(new ArrayList<>());
-            mSpotifyService.getPlaylists(token).enqueue(new Callback<SpotifyLibrary>() {
-                @Override
-                public void onResponse(Call<SpotifyLibrary> call, Response<SpotifyLibrary> response) {
-                    if (response.isSuccessful()) {
 
-                        SpotifyLibrary library = response.body();
-                        library.setOwner(userId);
-                        new PlaylistFetchTask(library, callbacks).execute(library);
-
-                    } else {
-                        Log.d(TAG, response.toString());
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<SpotifyLibrary> call, Throwable t) {
-
-                }
-            });
+            getPlaylistsRecursive(token, userId, callbacks, 0, 0);
         }
 
+    }
+
+    public void getPlaylistsRecursive(String token, String userId, PlaylistFetchTask.Callbacks callbacks, int offset, int depth) {
+
+        //this is a recursive function
+        //before executing it check how far call has gone in the recursive tree
+        //if equal to or more than 50 return
+        if (depth > 50) return;
+
+        mSpotifyService.getPlaylists(token, offset).enqueue(new Callback<SpotifyLibrary>() {
+            @Override
+            public void onResponse(Call<SpotifyLibrary> call, Response<SpotifyLibrary> response) {
+                if (response.isSuccessful()) {
+
+                    SpotifyLibrary library = response.body();
+                    library.setOwner(userId);
+                    new PlaylistFetchTask(library, callbacks).execute(library);
+
+                    Log.d(TAG, String.valueOf(library.getOffset()));
+                    if (library.getNext() != null) {
+                        getPlaylistsRecursive(token, userId, callbacks, library.getOffset() + library.getItems().size(), depth+1);
+                    }
+                } else {
+                    Log.d(TAG, response.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SpotifyLibrary> call, Throwable t) {
+
+            }
+        });
     }
 
     //spotify service interface
@@ -331,13 +347,14 @@ public class SpotifyMusicPlatform extends MusicPlatform {
 
         //get user playlist
         @GET("me/playlists")
-        Call<SpotifyLibrary> getPlaylists(@Header("Authorization") String token);
+        Call<SpotifyLibrary> getPlaylists(@Header("Authorization") String token, @Query("offset") int offset);
 
     }
 
 
     public static class PlaylistFetchTask extends AsyncTask<SpotifyLibrary, SpotifyPlaylist, Void> {
 
+        private static final String TAG = "PlaylistFetchTaskLogger";
         private SpotifyLibrary mSpotifyLibrary;
         private Callbacks mCallbacks;
         public PlaylistFetchTask(SpotifyLibrary spotifyLibrary, Callbacks callbacks) {
@@ -348,25 +365,26 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
-            if (mSpotifyLibrary.getOwner().equals(PlaylistLab.getInstance().getUserId())) {
+            if (mSpotifyLibrary.getOwner().equals(PlaylistLab.getInstance().getUserId()) && mSpotifyLibrary.getNext() == null) {
                 PlaylistLab.getInstance().setState(State.FETCHED);
             }
+            Log.d(TAG, PlaylistLab.getInstance().getState().toString());
             mCallbacks = null;
         }
 
         @Override
         protected void onProgressUpdate(SpotifyPlaylist... playlist) {
             super.onProgressUpdate(playlist);
-            Log.d("PlaylistFetchTask", PlaylistLab.getInstance().getUserId());
-            if (PlaylistLab.getInstance().getUserId().equals(playlist[0].getSpotifyOwner().getId())) {
+
+            if (PlaylistLab.getInstance().getUserId().equals(mSpotifyLibrary.getOwner())) {
                 PlaylistLab.getInstance().add(playlist[0]);
                 mCallbacks.onFetchPlaylist();
+
             }
         }
 
         @Override
         protected Void doInBackground(SpotifyLibrary... library) {
-
 
 
             for (SpotifyPlaylist spotifyPlaylist : library[0].getItems()) {
