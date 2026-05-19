@@ -1,7 +1,10 @@
 package com.undefinedbehaviourgames.grizzly;
 
 import static tidal.TidalMusicPlatform.TIDAL_SIGN_IN_REQUEST_CODE;
+import static youtube.YoutubeMusicPlatform.GOOGLE_REQUEST_SELECT_ACCOUNT;
 
+import android.accounts.AccountManager;
+import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 
@@ -26,6 +29,7 @@ public class MainActivity extends SingleFragmentActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if (resultCode != Activity.RESULT_OK) return;
         Log.d(TAG, Integer.toString(resultCode));
 
         switch (requestCode) {
@@ -60,6 +64,10 @@ public class MainActivity extends SingleFragmentActivity {
                 }
 
                 break;
+
+            case GOOGLE_REQUEST_SELECT_ACCOUNT:
+                String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                Log.d(TAG, accountName);
         }
 
 
