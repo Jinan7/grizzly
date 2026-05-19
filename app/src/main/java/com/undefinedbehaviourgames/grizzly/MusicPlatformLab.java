@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import spotify.SpotifyMusicPlatform;
+import tidal.TidalMusicPlatform;
+import youtube.YoutubeMusicPlatform;
 
 public class MusicPlatformLab {
 
@@ -15,6 +17,7 @@ public class MusicPlatformLab {
     private MusicPlatformLab(Context context) {
         mMusicPlatforms = new ArrayList<>();
         mMusicPlatforms.add(SpotifyMusicPlatform.getInstance(context));
+        mMusicPlatforms.add(TidalMusicPlatform.getInstance(context));
         mMusicPlatforms.add(YoutubeMusicPlatform.getInstance(context));
         mMusicPlatforms.add(AppleMusicPlatform.getInstance(context));
     }

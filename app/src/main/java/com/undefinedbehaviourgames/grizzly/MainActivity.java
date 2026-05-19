@@ -1,5 +1,7 @@
 package com.undefinedbehaviourgames.grizzly;
 
+import static tidal.TidalMusicPlatform.TIDAL_SIGN_IN_REQUEST_CODE;
+
 import android.content.Intent;
 import android.util.Log;
 
@@ -25,23 +27,45 @@ public class MainActivity extends SingleFragmentActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         Log.d(TAG, Integer.toString(resultCode));
-        if (requestCode == SpotifyMusicPlatform.SPOTIFY_SIGN_IN_REQUEST_CODE) {
-            AuthorizationResponse response = AuthorizationResponse.fromIntent(data);
-            AuthorizationException exception = AuthorizationException.fromIntent(data);
-            SpotifyMusicPlatform.getInstance(this).updateAuthState(response, exception);
-            if (response != null) {
 
-                MainFragment frag = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.single_fragment_container);
+        switch (requestCode) {
+            case SpotifyMusicPlatform.SPOTIFY_SIGN_IN_REQUEST_CODE:
+                AuthorizationResponse response = AuthorizationResponse.fromIntent(data);
+                AuthorizationException exception = AuthorizationException.fromIntent(data);
+                SpotifyMusicPlatform.getInstance(this).updateAuthState(response, exception);
+                if (response != null) {
 
-                if (frag != null) {
-                    frag.signInNewUser(response);
+                    MainFragment frag = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.single_fragment_container);
+
+                    if (frag != null) {
+                        frag.signInNewUser(response, MusicPlatform.Platforms.spotify);
+                    }
+
                 }
 
-            }
+                break;
 
+            case TIDAL_SIGN_IN_REQUEST_CODE:
+                response = AuthorizationResponse.fromIntent(data);
+                exception = AuthorizationException.fromIntent(data);
+                SpotifyMusicPlatform.getInstance(this).updateAuthState(response, exception);
+                if (response != null) {
 
+                    MainFragment frag = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.single_fragment_container);
 
+                    if (frag != null) {
+                        frag.signInNewUser(response, MusicPlatform.Platforms.tidal);
+                    }
+
+                }
+
+                break;
         }
+
+
+
+
+
     }
 
 }

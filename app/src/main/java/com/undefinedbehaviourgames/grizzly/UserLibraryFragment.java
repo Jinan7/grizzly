@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,15 +16,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import spotify.SpotifyMusicPlatform;
+import tidal.TidalMusicPlatform;
 
 public class UserLibraryFragment extends Fragment implements SpotifyMusicPlatform.PlaylistFetchTask.Callbacks {
 
     private static final String ARGS_USER_ID =  "user id";
+    private static final String ARGS_PLATFORM = "platform";
     private RecyclerView mRecyclerView;
-    public  static  UserLibraryFragment newInstance(String userId) {
+    public  static  UserLibraryFragment newInstance(String userId, String platform) {
         UserLibraryFragment fragment = new UserLibraryFragment();
         Bundle args = new Bundle();
         args.putString(ARGS_USER_ID, userId);
+        args.putString(ARGS_PLATFORM, platform);
         fragment.setArguments(args);
         return fragment;
     }
@@ -33,7 +37,18 @@ public class UserLibraryFragment extends Fragment implements SpotifyMusicPlatfor
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         String userId = getArguments().getString(ARGS_USER_ID);
-        SpotifyMusicPlatform.getInstance(getContext()).fetchPlaylists(userId, this);
+        String platform = getArguments().getString(ARGS_PLATFORM);
+
+        switch (platform) {
+
+            case MusicPlatform.Platforms.spotify:
+                SpotifyMusicPlatform.getInstance(getContext()).fetchPlaylists(userId, this);
+                break;
+            case MusicPlatform.Platforms.tidal:
+                TidalMusicPlatform.getInstance(getContext()).fetchPlaylists(userId, this);
+                break;
+        }
+
     }
 
     @Nullable

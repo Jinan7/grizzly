@@ -76,9 +76,6 @@ public class AddAccountDialog extends DialogFragment {
 
         @Override
         public void onClick(View v) {
-//            Intent intent = new Intent();
-//            intent.putExtra(EXTRA_MUSIC_PLATFORM, mMusicPlatform.getTAG());
-//            getTargetFragment().onActivityResult(getTargetRequestCode(), MainActivity.RESULT_OK, intent);
 
 
             mMusicPlatform.authorize(getActivity());

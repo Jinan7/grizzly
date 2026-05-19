@@ -2,13 +2,24 @@ package com.undefinedbehaviourgames.grizzly;
 
 
 import android.app.Activity;
+import android.util.Base64;
 
 import net.openid.appauth.AuthorizationResponse;
+
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 import spotify.SpotifyMusicPlatform;
 
 public class MusicPlatform {
 
+    public static class Platforms {
+        public static final String spotify = "Spotify";
+        public static final String tidal = "Tidal";
+        public static final String youtube = "Youtube Music";
+    }
 
     public String TAG;
     public int mIconResourceId;
@@ -46,6 +57,26 @@ public class MusicPlatform {
 
     public String getPlatformName() {
         return mPlatformName;
+    }
+
+    //helper method to generate code verifier
+    public String getCodeVerifier() {
+        SecureRandom sr = new SecureRandom();
+        byte[] code = new byte[32];
+        sr.nextBytes(code);
+        String codeVerifier = Base64.encodeToString(code, Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
+
+        return codeVerifier;
+    }
+
+    //helper method to encrpyt code verifier to create code challenge
+    public String getCodeChallenge(String codeVerifier) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        byte[] bytes = codeVerifier.getBytes("US-ASCII");
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(bytes, 0, bytes.length);
+        byte[] digest = md.digest();
+        String codeChallenge = org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(digest);
+        return codeChallenge;
     }
 
     public void setPlatformName(String platformName) {

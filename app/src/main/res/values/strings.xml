@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Grizzly</string>
+    <string name="spotify">Spotify</string>
+    <string name="tidal">Tidal</string>
 </resources>

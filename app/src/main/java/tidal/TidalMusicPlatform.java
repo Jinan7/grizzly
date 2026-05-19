@@ -1,18 +1,14 @@
-package spotify;
+package tidal;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.util.Base64;
 import android.util.Log;
-
 
 import androidx.annotation.Nullable;
 
 import com.undefinedbehaviourgames.grizzly.MusicPlatform;
-import com.undefinedbehaviourgames.grizzly.Playlist;
 import com.undefinedbehaviourgames.grizzly.PlaylistLab;
 import com.undefinedbehaviourgames.grizzly.R;
 import com.undefinedbehaviourgames.grizzly.State;
@@ -26,13 +22,10 @@ import net.openid.appauth.AuthorizationServiceConfiguration;
 import net.openid.appauth.ResponseTypeValues;
 import net.openid.appauth.TokenResponse;
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -41,41 +34,41 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Query;
+import spotify.SpotifyAccount;
+import spotify.SpotifyLibrary;
+import spotify.SpotifyMusicPlatform;
 
-public class SpotifyMusicPlatform extends MusicPlatform {
+public class TidalMusicPlatform extends MusicPlatform {
 
+    private static TidalMusicPlatform mSingleton;
 
-
-    private static SpotifyMusicPlatform mSingleton;
-
-    private final String BASE_URL = "https://api.spotify.com/v1/";
-    private static final String AUTH_URL = "https://accounts.spotify.com/authorize";
-    private static final String TOKEN_URL = "https://accounts.spotify.com/api/token";
-    private static final String CLIENT_ID = "d463534ec77b4599be1f8178143905d0";
+    private final String BASE_URL = "https://openapi.tidal.com/v2/";
+    private static final String CLIENT_ID = "Jn5OXRt4RWBjwi0q";
     private static final String REDIRECT_URI = "com.undefinedbehaviourgames.grizzly://callback";
-    private static final String SCOPE = "user-read-private user-read-email playlist-read-private playlist-read-collaborative";
-    public static final int SPOTIFY_SIGN_IN_REQUEST_CODE = 0;
+    private static final String AUTH_URL = "https://login.tidal.com/authorize";
+    private static final String TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token";
+    private static final String SCOPE = "user.read playlists.write playlists.read";
+    public static final int TIDAL_SIGN_IN_REQUEST_CODE = 1;
 
     private AuthorizationServiceConfiguration mServiceConfig;
     private AuthorizationRequest mAuthorizationRequest;
     private AuthorizationService mAuthorizationService;
     private AuthState mAuthState;
-    private SpotifyService mSpotifyService;
+    private TidalService mTidalService;
     private Context mContext;
 
     private boolean cancelSignIn;
 
 
-
-    private SpotifyMusicPlatform(Context context) {
+    private TidalMusicPlatform(Context context) {
         mContext = context.getApplicationContext();
         cancelSignIn = false;
     }
-    public static SpotifyMusicPlatform getInstance(Context context) {
+    public static TidalMusicPlatform getInstance(Context context) {
         if (mSingleton == null) {
-            mSingleton = new SpotifyMusicPlatform(context);
-            mSingleton.setIconResourceId(R.drawable.spotify);
-            mSingleton.setPlatformName(Platforms.spotify);
+            mSingleton = new TidalMusicPlatform(context);
+            mSingleton.setIconResourceId(R.drawable.tidal);
+            mSingleton.setPlatformName(Platforms.tidal);
             mSingleton.TAG = Platforms.tidal;
             mSingleton.configure();
         }
@@ -119,25 +112,23 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         //use retrofit to create spotify service class
         //which will be used to query spotify api after
         //access token is gotten
-        mSpotifyService = new Retrofit.Builder()
+        mTidalService = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
-                .create(SpotifyService.class);
+                .create(TidalService.class);
 
     }
-
 
     @Override
     public void authorize(Activity activity) {
         super.authorize(activity);
         mAuthorizationService = new AuthorizationService(mContext);
         Intent authIntent = mAuthorizationService.getAuthorizationRequestIntent(mAuthorizationRequest);
-        activity.startActivityForResult(authIntent, SPOTIFY_SIGN_IN_REQUEST_CODE);
+        activity.startActivityForResult(authIntent, TIDAL_SIGN_IN_REQUEST_CODE);
 
     }
 
-    @Override
     public void signIn(AuthorizationResponse response, Callbacks callbacks) {
         super.signIn(response, callbacks);
 
@@ -199,8 +190,49 @@ public class SpotifyMusicPlatform extends MusicPlatform {
 
     }
 
+    public void getUser(String token, Callbacks callbacks) {
+        mTidalService.getUser(token).enqueue(new Callback<TidalAccount>() {
+            @Override
+            public void onResponse(Call<TidalAccount> call, Response<TidalAccount> response) {
+
+                //check for cancellation flag
+                if(!cancelSignIn) {
+                    if (response.isSuccessful()) {
+
+//                        try {
+//                            Log.d(TAG, response.body().string());
+//                        } catch (IOException e) {
+//                            throw new RuntimeException(e);
+//                        }
+                        cancelSignIn = false;
+                        if(callbacks != null) callbacks.onSignInFinished(response.body());
+
+                    } else {
+                        Log.d(TAG, response.toString());
+                        cancelSignIn = false;
+                        if(callbacks != null) callbacks.onSignInError();
+                    }
+
+
+                    //display a toast if sign in is not successful
+
+                } else {
+                    //cancel sign in and reset flag
+                    if( callbacks != null) callbacks.cancelSignIn();
+                    cancelSignIn = false;
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<TidalAccount> call, Throwable t) {
+                if(callbacks != null) callbacks.onSignInError();
+            }
+        });
+    }
+
     @Override
-    public void fetchPlaylists(String userId, PlaylistFetchTask.Callbacks callbacks) {
+    public void fetchPlaylists(String userId, SpotifyMusicPlatform.PlaylistFetchTask.Callbacks callbacks) {
         super.fetchPlaylists(userId, callbacks);
 
         mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
@@ -218,59 +250,14 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         });
     }
 
-    public void cancel() {
-        cancelSignIn = true;
-    }
-
-
-
-
-
-    //get user
-    public void getUser(String token, Callbacks callbacks) {
-        mSpotifyService.getUser(token).enqueue(new Callback<SpotifyAccount>() {
-            @Override
-            public void onResponse(Call<SpotifyAccount> call, Response<SpotifyAccount> response) {
-
-                //check for cancellation flag
-                if(!cancelSignIn) {
-                    if (response.isSuccessful()) {
-
-                        Log.d(TAG, response.body().toString());
-                        cancelSignIn = false;
-                        if(callbacks != null) callbacks.onSignInFinished(response.body());
-
-                    } else {
-                        cancelSignIn = false;
-                        if(callbacks != null) callbacks.onSignInError();
-                    }
-
-
-                    //display a toast if sign in is not successful
-
-                } else {
-                    //cancel sign in and reset flag
-                    if( callbacks != null) callbacks.cancelSignIn();
-                    cancelSignIn = false;
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<SpotifyAccount> call, Throwable t) {
-                if(callbacks != null) callbacks.onSignInError();
-            }
-        });
-    }
-
-    public void getPlaylists(String token, String userId, PlaylistFetchTask.Callbacks callbacks) {
+    public void getPlaylists(String token, String userId, SpotifyMusicPlatform.PlaylistFetchTask.Callbacks callbacks) {
 
         String playlistLabUserId = PlaylistLab.getInstance().getUserId();
-
+        String playListLabPlatform = PlaylistLab.getInstance().getPlatform();
         //start a new request if the current loaded playlist does not belong to the requesting user or
         //the current loaded playlist belongs to a null user
         //the current fetched playlist is incomplete
-        if (playlistLabUserId == null || !playlistLabUserId.equals(userId) || PlaylistLab.getInstance().getState() != State.FETCHED)
+        if (playListLabPlatform == null || !playListLabPlatform.equals(TAG)|| playlistLabUserId == null || !playlistLabUserId.equals(userId) || PlaylistLab.getInstance().getState() != State.FETCHED)
         {
             //set total to -1 for pass fetchComplete() test in case anything goes wrong
             //if this is not set and an error occurs before any fetch is made
@@ -285,105 +272,50 @@ public class SpotifyMusicPlatform extends MusicPlatform {
             PlaylistLab.getInstance().setUserId(userId);
             PlaylistLab.getInstance().setPlaylist(new ArrayList<>());
 
-            getPlaylistsRecursive(token, userId, callbacks, 0, 0);
+//            getPlaylistsRecursive(token, userId, callbacks, 0, 0);
+
+            mTidalService.getPlaylists(token, "me").enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+
+                        try {
+                            Log.d(TAG, response.body().string());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+//                        SpotifyLibrary library = response.body();
+//                        library.setOwner(userId);
+//                        new SpotifyMusicPlatform.PlaylistFetchTask(library, callbacks).execute(library);
+
+//                        Log.d(TAG, String.valueOf(library.getOffset()));
+//                        if (library.getNext() != null) {
+//                            getPlaylistsRecursive(token, userId, callbacks, library.getOffset() + library.getItems().size(), depth+1);
+//                        }
+                    } else {
+                        Log.d(TAG, response.toString());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                }
+            });
         }
 
-    }
-
-    public void getPlaylistsRecursive(String token, String userId, PlaylistFetchTask.Callbacks callbacks, int offset, int depth) {
-
-        //this is a recursive function
-        //before executing it check how far call has gone in the recursive tree
-        //if equal to or more than 50 return
-        if (depth > 50) return;
-
-        mSpotifyService.getPlaylists(token, offset).enqueue(new Callback<SpotifyLibrary>() {
-            @Override
-            public void onResponse(Call<SpotifyLibrary> call, Response<SpotifyLibrary> response) {
-                if (response.isSuccessful()) {
-
-                    SpotifyLibrary library = response.body();
-                    library.setOwner(userId);
-                    new PlaylistFetchTask(library, callbacks).execute(library);
-
-                    Log.d(TAG, String.valueOf(library.getOffset()));
-                    if (library.getNext() != null) {
-                        getPlaylistsRecursive(token, userId, callbacks, library.getOffset() + library.getItems().size(), depth+1);
-                    }
-                } else {
-                    Log.d(TAG, response.toString());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SpotifyLibrary> call, Throwable t) {
-
-            }
-        });
     }
 
     //spotify service interface
-     public interface SpotifyService {
+    public interface TidalService {
 
         //get user profile
-        @GET("me")
-        Call<SpotifyAccount> getUser(@Header("Authorization") String token);
+        @GET("users/me")
+        Call<TidalAccount> getUser(@Header("Authorization") String token);
 
         //get user playlist
-        @GET("me/playlists")
-        Call<SpotifyLibrary> getPlaylists(@Header("Authorization") String token, @Query("offset") int offset);
+        @GET("playlists")
+        Call<ResponseBody> getPlaylists(@Header("Authorization") String token, @Query("filter[owners.id]") String userId);
 
     }
-
-
-    public static class PlaylistFetchTask extends AsyncTask<SpotifyLibrary, SpotifyPlaylist, Void> {
-
-        private static final String TAG = "PlaylistFetchTaskLogger";
-        private SpotifyLibrary mSpotifyLibrary;
-        private Callbacks mCallbacks;
-        public PlaylistFetchTask(SpotifyLibrary spotifyLibrary, Callbacks callbacks) {
-            mSpotifyLibrary = spotifyLibrary;
-            mCallbacks = callbacks;
-
-        }
-        @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
-            if (mSpotifyLibrary.getOwner().equals(PlaylistLab.getInstance().getUserId()) && mSpotifyLibrary.getNext() == null) {
-                PlaylistLab.getInstance().setState(State.FETCHED);
-            }
-            Log.d(TAG, PlaylistLab.getInstance().getState().toString());
-            mCallbacks = null;
-            mSpotifyLibrary = null;
-        }
-
-        @Override
-        protected void onProgressUpdate(SpotifyPlaylist... playlist) {
-            super.onProgressUpdate(playlist);
-
-            if (PlaylistLab.getInstance().getUserId().equals(mSpotifyLibrary.getOwner())) {
-                PlaylistLab.getInstance().add(playlist[0]);
-                if (mCallbacks != null) mCallbacks.onFetchPlaylist();
-
-            }
-        }
-
-        @Override
-        protected Void doInBackground(SpotifyLibrary... library) {
-
-
-            for (SpotifyPlaylist spotifyPlaylist : library[0].getItems()) {
-                spotifyPlaylist.init();
-                publishProgress(spotifyPlaylist);
-            }
-            return null;
-        }
-
-
-        public interface  Callbacks {
-            void onFetchPlaylist();
-        }
-    }
-
-
 }

@@ -27,6 +27,7 @@ import net.openid.appauth.AuthorizationResponse;
 import java.util.List;
 
 import spotify.SpotifyMusicPlatform;
+import tidal.TidalMusicPlatform;
 
 public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callbacks {
 
@@ -49,6 +50,12 @@ public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callb
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy called");
     }
 
     @Nullable
@@ -106,9 +113,18 @@ public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callb
 
     }
 
-    public void signInNewUser(AuthorizationResponse response) {
+    public void signInNewUser(AuthorizationResponse response, String service) {
         Log.d(TAG, response.authorizationCode);
-        SpotifyMusicPlatform.getInstance(getContext()).signIn(response, MainFragment.this);
+
+        switch (service) {
+            case MusicPlatform.Platforms.spotify:
+                SpotifyMusicPlatform.getInstance(getContext()).signIn(response, MainFragment.this);
+                break;
+            case MusicPlatform.Platforms.tidal:
+                TidalMusicPlatform.getInstance(getContext()).signIn(response, MainFragment.this);
+                break;
+        }
+
         mCreateUserDialog = CreateUserDialog.newInstance();
         mCreateUserDialog.setTargetFragment(MainFragment.this, CREATE_USER_REQUEST_CODE);
         mCreateUserDialog.show(getParentFragmentManager(), CREATE_USER_DIALOG_TAG);
@@ -158,7 +174,7 @@ public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callb
         @Override
         public void onClick(View v) {
 
-            Intent intent = UserLibraryActivity.newIntent(getContext(), mAccount.getID());
+            Intent intent = UserLibraryActivity.newIntent(getContext(), mAccount.getID(), mAccount.getMusicServiceName());
             startActivity(intent);
         }
     }

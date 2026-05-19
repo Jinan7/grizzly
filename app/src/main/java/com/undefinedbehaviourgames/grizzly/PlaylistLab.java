@@ -11,6 +11,7 @@ public class PlaylistLab {
     private String userId; //variable to store whose playlist is  currently loaded in playlistlab
     private int total; //variable to store the total number of playlist to be fetched
     private int fetched; //variable to store the total number of items fetched
+    private String platform;
     private PlaylistLab() {
         state = State.IDLE;
         mPlaylist = new ArrayList<>();
@@ -71,5 +72,13 @@ public class PlaylistLab {
 
     public void add(Playlist playlist) {
         mPlaylist.add(playlist);
+    }
+
+    public String getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(String platform) {
+        this.platform = platform;
     }
 }

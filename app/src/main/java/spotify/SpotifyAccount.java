@@ -1,6 +1,7 @@
 package spotify;
 
 import com.undefinedbehaviourgames.grizzly.Account;
+import com.undefinedbehaviourgames.grizzly.MusicPlatform;
 import com.undefinedbehaviourgames.grizzly.R;
 
 public class SpotifyAccount extends Account {
@@ -11,14 +12,14 @@ public class SpotifyAccount extends Account {
 
     public SpotifyAccount() {
         mAccountName = "My Spotify Account";
-        mMusicServiceName = "Spotify";
+        mMusicServiceName = MusicPlatform.Platforms.spotify;
         mIconResourceId = R.drawable.spotify;
     }
     public static SpotifyAccount getInstance() {
         SpotifyAccount account = new SpotifyAccount();
         account.setIconResourceId(R.drawable.spotify);
-        account.setAccountName("Spotify");
-        account.setMusicServiceName("Spotify");
+        account.setAccountName("My Spotify Account");
+        account.setMusicServiceName(MusicPlatform.Platforms.spotify);
         return account;
     }
 
