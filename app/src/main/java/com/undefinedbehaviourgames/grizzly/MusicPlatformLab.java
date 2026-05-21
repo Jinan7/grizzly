@@ -5,6 +5,7 @@ import android.content.Context;
 import java.util.ArrayList;
 import java.util.List;
 
+import amazon.AmazonMusicPlatform;
 import spotify.SpotifyMusicPlatform;
 import tidal.TidalMusicPlatform;
 import youtube.YoutubeMusicPlatform;
@@ -19,6 +20,7 @@ public class MusicPlatformLab {
         mMusicPlatforms.add(SpotifyMusicPlatform.getInstance(context));
         mMusicPlatforms.add(TidalMusicPlatform.getInstance(context));
         mMusicPlatforms.add(YoutubeMusicPlatform.getInstance(context));
+        mMusicPlatforms.add(AmazonMusicPlatform.getInstance(context));
         mMusicPlatforms.add(AppleMusicPlatform.getInstance(context));
     }
 

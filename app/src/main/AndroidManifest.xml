@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,6 +14,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Grizzly">
+<!--        <queries>-->
+<!--            <intent>-->
+<!--                <action android:name="com.amazon.identity.auth.device.authorization.MapAuthorizationService"/>-->
+<!--            </intent>-->
+<!--        </queries>-->
         <activity
             android:name=".UserLibraryActivity"
             android:exported="false" />
@@ -29,6 +35,19 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.amazon.identity.auth.device.workflow.WorkflowActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:allowTaskReparenting="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <!-- android:host must use the full package name found in Manifest General Attributes -->
+                <data android:host="${applicationId}" android:scheme="amzn"/>
             </intent-filter>
         </activity>
     </application>

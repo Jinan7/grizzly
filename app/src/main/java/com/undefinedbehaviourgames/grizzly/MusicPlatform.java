@@ -19,6 +19,7 @@ public class MusicPlatform {
         public static final String spotify = "Spotify";
         public static final String tidal = "Tidal";
         public static final String youtube = "Youtube Music";
+        public static final String amazon = "Amazon Music";
     }
 
     public String TAG;
