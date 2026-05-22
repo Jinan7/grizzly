@@ -21,7 +21,6 @@ public class MusicPlatformLab {
         mMusicPlatforms.add(TidalMusicPlatform.getInstance(context));
         mMusicPlatforms.add(YoutubeMusicPlatform.getInstance(context));
         mMusicPlatforms.add(AmazonMusicPlatform.getInstance(context));
-        mMusicPlatforms.add(AppleMusicPlatform.getInstance(context));
     }
 
     public static MusicPlatformLab get(Context context) {
