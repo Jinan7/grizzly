@@ -43,8 +43,8 @@ public class AmazonMusicPlatform extends MusicPlatform {
     private static AmazonMusicPlatform mSingleton;
 
     private final String BASE_URL = "https://openapi.tidal.com/v2/";
-    private static final String CLIENT_ID = "Jn5OXRt4RWBjwi0q";
-    private static final String REDIRECT_URI = "com.undefinedbehaviourgames.grizzly://callback";
+    private static final String CLIENT_ID = "amzn1.application-oa2-client.a57779056dda4f05848d401a64fe2481";
+    private static final String REDIRECT_URI = "https://grizzly.undefinedbehaviourgames.com/oauth2redirect";
     private static final String AUTH_URL = "https://www.amazon.com/ap/oa";
     private static final String TOKEN_URL = "https://api.amazon.co.uk/auth/o2";
     private static final String SCOPE = "profile profile:user_id postal_code";
