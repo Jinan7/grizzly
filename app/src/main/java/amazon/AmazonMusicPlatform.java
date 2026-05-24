@@ -67,9 +67,9 @@ public class AmazonMusicPlatform extends MusicPlatform {
     public static AmazonMusicPlatform getInstance(Context context) {
         if (mSingleton == null) {
             mSingleton = new AmazonMusicPlatform(context);
-            mSingleton.setIconResourceId(R.drawable.tidal);
-            mSingleton.setPlatformName(Platforms.tidal);
-            mSingleton.TAG = Platforms.tidal;
+            mSingleton.setIconResourceId(R.drawable.amazon);
+            mSingleton.setPlatformName(Platforms.amazon);
+            mSingleton.TAG = Platforms.amazon;
             mSingleton.configure();
         }
         return mSingleton;

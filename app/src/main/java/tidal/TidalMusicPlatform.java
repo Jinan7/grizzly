@@ -44,7 +44,7 @@ public class TidalMusicPlatform extends MusicPlatform {
 
     private final String BASE_URL = "https://openapi.tidal.com/v2/";
     private static final String CLIENT_ID = "Jn5OXRt4RWBjwi0q";
-    private static final String REDIRECT_URI = "com.undefinedbehaviourgames.grizzly://callback";
+    private static final String REDIRECT_URI = "https://grizzly.undefinedbehaviourgames.com/oauth2redirect";
     private static final String AUTH_URL = "https://login.tidal.com/authorize";
     private static final String TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token";
     private static final String SCOPE = "user.read playlists.write playlists.read";
