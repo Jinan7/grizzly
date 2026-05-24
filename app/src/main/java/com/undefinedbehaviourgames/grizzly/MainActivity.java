@@ -2,7 +2,8 @@ package com.undefinedbehaviourgames.grizzly;
 
 import static amazon.AmazonMusicPlatform.AMAZON_SIGN_IN_REQUEST_CODE;
 import static tidal.TidalMusicPlatform.TIDAL_SIGN_IN_REQUEST_CODE;
-import static youtube.YoutubeMusicPlatform.GOOGLE_REQUEST_SELECT_ACCOUNT;
+//import static youtube.YoutubeMusicPlatform.GOOGLE_REQUEST_SELECT_ACCOUNT;
+import static youtube.YoutubeMusicPlatform.YOUTUBE_SIGN_IN_REQUEST_CODE;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -69,9 +70,8 @@ public class MainActivity extends SingleFragmentActivity {
             case AMAZON_SIGN_IN_REQUEST_CODE:
                 break;
 
-            case GOOGLE_REQUEST_SELECT_ACCOUNT:
-                String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-                Log.d(TAG, accountName);
+            case YOUTUBE_SIGN_IN_REQUEST_CODE:
+                break;
         }
 
 
