@@ -26,8 +26,10 @@ import net.openid.appauth.AuthorizationResponse;
 
 import java.util.List;
 
+import amazon.AmazonMusicPlatform;
 import spotify.SpotifyMusicPlatform;
 import tidal.TidalMusicPlatform;
+import youtube.YoutubeMusicPlatform;
 
 public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callbacks {
 
@@ -122,6 +124,12 @@ public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callb
                 break;
             case MusicPlatform.Platforms.tidal:
                 TidalMusicPlatform.getInstance(getContext()).signIn(response, MainFragment.this);
+                break;
+            case MusicPlatform.Platforms.amazon:
+                AmazonMusicPlatform.getInstance(getContext()).signIn(response, MainFragment.this);
+                break;
+            case MusicPlatform.Platforms.youtube:
+                YoutubeMusicPlatform.getInstance(getContext()).signIn(response, MainFragment.this);
                 break;
         }
 

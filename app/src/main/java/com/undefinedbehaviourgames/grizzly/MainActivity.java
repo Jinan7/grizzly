@@ -16,7 +16,10 @@ import androidx.fragment.app.Fragment;
 import net.openid.appauth.AuthorizationException;
 import net.openid.appauth.AuthorizationResponse;
 
+import amazon.AmazonMusicPlatform;
 import spotify.SpotifyMusicPlatform;
+import tidal.TidalMusicPlatform;
+import youtube.YoutubeMusicPlatform;
 
 public class MainActivity extends SingleFragmentActivity {
 
@@ -54,7 +57,7 @@ public class MainActivity extends SingleFragmentActivity {
             case TIDAL_SIGN_IN_REQUEST_CODE:
                 response = AuthorizationResponse.fromIntent(data);
                 exception = AuthorizationException.fromIntent(data);
-                SpotifyMusicPlatform.getInstance(this).updateAuthState(response, exception);
+                TidalMusicPlatform.getInstance(this).updateAuthState(response, exception);
                 if (response != null) {
 
                     MainFragment frag = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.single_fragment_container);
@@ -68,9 +71,33 @@ public class MainActivity extends SingleFragmentActivity {
                 break;
 
             case AMAZON_SIGN_IN_REQUEST_CODE:
+                response = AuthorizationResponse.fromIntent(data);
+                exception = AuthorizationException.fromIntent(data);
+                AmazonMusicPlatform.getInstance(this).updateAuthState(response, exception);
+                if (response != null) {
+
+                    MainFragment frag = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.single_fragment_container);
+
+                    if (frag != null) {
+                        frag.signInNewUser(response, MusicPlatform.Platforms.amazon);
+                    }
+
+                }
                 break;
 
             case YOUTUBE_SIGN_IN_REQUEST_CODE:
+                response = AuthorizationResponse.fromIntent(data);
+                exception = AuthorizationException.fromIntent(data);
+                YoutubeMusicPlatform.getInstance(this).updateAuthState(response, exception);
+                if (response != null) {
+
+                    MainFragment frag = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.single_fragment_container);
+
+                    if (frag != null) {
+                        frag.signInNewUser(response, MusicPlatform.Platforms.youtube);
+                    }
+
+                }
                 break;
         }
 

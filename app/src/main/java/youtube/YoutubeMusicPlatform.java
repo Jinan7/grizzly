@@ -42,7 +42,7 @@ public class YoutubeMusicPlatform extends MusicPlatform {
 
     private static YoutubeMusicPlatform mSingleton;
 
-    private final String BASE_URL = "https://openapi.tidal.com/v2/";
+    private final String BASE_URL = "https://www.googleapis.com/youtube/v3/";
     private static final String CLIENT_ID = "702357035237-k6cdbgm8t7hld9toisp4b87a61l3ipvt.apps.googleusercontent.com";
     private static final String REDIRECT_URI = "https://grizzly.undefinedbehaviourgames.com/oauth2redirect";
     private static final String AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
