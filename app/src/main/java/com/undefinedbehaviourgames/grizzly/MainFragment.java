@@ -117,7 +117,9 @@ public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callb
 
     public void signInNewUser(AuthorizationResponse response, String service) {
         Log.d(TAG, response.authorizationCode);
-
+        mCreateUserDialog = CreateUserDialog.newInstance();
+        mCreateUserDialog.setTargetFragment(MainFragment.this, CREATE_USER_REQUEST_CODE);
+        mCreateUserDialog.show(getParentFragmentManager(), CREATE_USER_DIALOG_TAG);
         switch (service) {
             case MusicPlatform.Platforms.spotify:
                 SpotifyMusicPlatform.getInstance(getContext()).signIn(response, MainFragment.this);
@@ -133,9 +135,15 @@ public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callb
                 break;
         }
 
+
+    }
+
+    public void signInNewUser(String accountName, String service) {
+
         mCreateUserDialog = CreateUserDialog.newInstance();
         mCreateUserDialog.setTargetFragment(MainFragment.this, CREATE_USER_REQUEST_CODE);
         mCreateUserDialog.show(getParentFragmentManager(), CREATE_USER_DIALOG_TAG);
+        YoutubeMusicPlatform.getInstance(getContext()).signIn(accountName, MainFragment.this);
     }
 
     @Override

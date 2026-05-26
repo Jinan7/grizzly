@@ -8,6 +8,9 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.youtube.YouTubeScopes;
 import com.undefinedbehaviourgames.grizzly.MusicPlatform;
 import com.undefinedbehaviourgames.grizzly.PlaylistLab;
 import com.undefinedbehaviourgames.grizzly.R;
@@ -19,11 +22,13 @@ import net.openid.appauth.AuthorizationRequest;
 import net.openid.appauth.AuthorizationResponse;
 import net.openid.appauth.AuthorizationService;
 import net.openid.appauth.AuthorizationServiceConfiguration;
+import net.openid.appauth.ClientSecretBasic;
 import net.openid.appauth.ResponseTypeValues;
 import net.openid.appauth.TokenResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -41,20 +46,12 @@ import spotify.SpotifyMusicPlatform;
 public class YoutubeMusicPlatform extends MusicPlatform {
 
     private static YoutubeMusicPlatform mSingleton;
+    private GoogleAccountCredential mCredential;
 
-    private final String BASE_URL = "https://www.googleapis.com/youtube/v3/";
-    private static final String CLIENT_ID = "702357035237-k6cdbgm8t7hld9toisp4b87a61l3ipvt.apps.googleusercontent.com";
-    private static final String REDIRECT_URI = "https://grizzly.undefinedbehaviourgames.com/oauth2redirect";
-    private static final String AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
-    private static final String TOKEN_URL = "https://oauth2.googleapis.com/token";
-    private static final String SCOPE = "https://www.googleapis.com/auth/youtube";
     public static final int YOUTUBE_SIGN_IN_REQUEST_CODE = 3;
 
-    private AuthorizationServiceConfiguration mServiceConfig;
-    private AuthorizationRequest mAuthorizationRequest;
-    private AuthorizationService mAuthorizationService;
-    private AuthState mAuthState;
-    private AmazonService mAmazonService;
+    private YoutubeService mYoutubeService;
+    private static final String[] SCOPES = { YouTubeScopes.YOUTUBE_READONLY };
     private Context mContext;
 
     private boolean cancelSignIn;
@@ -76,57 +73,30 @@ public class YoutubeMusicPlatform extends MusicPlatform {
     }
 
     public void updateAuthState(AuthorizationResponse res, AuthorizationException ex) {
-        mAuthState.update(res, ex);
+
     }
     @Override
     public void configure() {
         super.configure();
+        mCredential = GoogleAccountCredential.usingOAuth2(mContext, Arrays.asList(SCOPES)).setBackOff(new ExponentialBackOff());
 
-        //create authorization service object
-        mServiceConfig = new AuthorizationServiceConfiguration( Uri.parse(AUTH_URL), Uri.parse(TOKEN_URL));
-        mAuthState = new AuthState(mServiceConfig);
-
-
-        //create authorization request object
-        AuthorizationRequest.Builder authRequestBuilder =
-                new AuthorizationRequest.Builder(
-                        mServiceConfig,
-                        CLIENT_ID,
-                        ResponseTypeValues.CODE,
-                        Uri.parse(REDIRECT_URI)
-                )
-                        .setScope(SCOPE);
-
-        try {
-
-            //generatate code verifier and code challenge and add it to authorization request builder
-            String codeVerifier = getCodeVerifier();
-            String codeVerifierChallenge = getCodeChallenge(codeVerifier);
-            authRequestBuilder.setCodeVerifier(codeVerifier, codeVerifierChallenge, AuthorizationRequest.CODE_CHALLENGE_METHOD_S256);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-        mAuthorizationRequest = authRequestBuilder.build();
-
-        //use retrofit to create spotify service class
-        //which will be used to query spotify api after
-        //access token is gotten
-        mAmazonService = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(AmazonService.class);
 
     }
 
     @Override
     public void authorize(Activity activity) {
         super.authorize(activity);
-        mAuthorizationService = new AuthorizationService(mContext);
-        Intent authIntent = mAuthorizationService.getAuthorizationRequestIntent(mAuthorizationRequest);
-        activity.startActivityForResult(authIntent, YOUTUBE_SIGN_IN_REQUEST_CODE);
 
+        activity.startActivityForResult(mCredential.newChooseAccountIntent(), YOUTUBE_SIGN_IN_REQUEST_CODE);
+
+
+    }
+
+    public void signIn(String accountName, Callbacks callbacks) {
+        mCredential.setSelectedAccountName(accountName);
+        YoutubeAccount account = new YoutubeAccount();
+        account.setAccountName(accountName);
+        callbacks.onSignInFinished(account);
     }
 
     public void signIn(AuthorizationResponse response, Callbacks callbacks) {
@@ -139,51 +109,7 @@ public class YoutubeMusicPlatform extends MusicPlatform {
         //instead of having to extract request token
 
         //check for cancellation flag
-        if (!cancelSignIn) {
-            mAuthorizationService.performTokenRequest(response.createTokenExchangeRequest(), new AuthorizationService.TokenResponseCallback() {
-                @Override
-                public void onTokenRequestCompleted(@Nullable TokenResponse response, @Nullable AuthorizationException ex) {
 
-                    if (!cancelSignIn) {
-                        if (response != null) {
-                            mAuthState.update(response, ex);
-
-                            mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
-                                @Override
-                                public void execute(@Nullable String accessToken, @Nullable String idToken, @Nullable AuthorizationException ex) {
-
-                                    if (ex != null) {
-                                        //for now cancel sign in if there is an error
-                                        //later show a toast
-                                        cancelSignIn = false;
-                                        callbacks.cancelSignIn();
-                                        return;
-                                    }
-                                    String token = "Bearer " + accessToken;
-                                    Log.d(TAG, token);
-                                    getUser(token, callbacks);
-                                }
-                            });
-                        } else {
-
-                            //show toast message on sign in error
-                            cancelSignIn = false;
-                            callbacks.onSignInError();
-                        }
-                    } else {
-                        callbacks.cancelSignIn();
-                        cancelSignIn = false;
-                    }
-
-
-
-                }
-            });
-        } else {
-            //reset cancel sign in flag and dismiss call fragment cancel implementation
-            callbacks.cancelSignIn();
-            cancelSignIn = false;
-        }
 
 
 
@@ -191,7 +117,7 @@ public class YoutubeMusicPlatform extends MusicPlatform {
     }
 
     public void getUser(String token, Callbacks callbacks) {
-        mAmazonService.getUser(token).enqueue(new Callback<ResponseBody>() {
+        mYoutubeService.getUser(token).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
@@ -235,19 +161,7 @@ public class YoutubeMusicPlatform extends MusicPlatform {
     public void fetchPlaylists(String userId, SpotifyMusicPlatform.PlaylistFetchTask.Callbacks callbacks) {
         super.fetchPlaylists(userId, callbacks);
 
-        mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
-            @Override
-            public void execute(@Nullable String accessToken, @Nullable String idToken, @Nullable AuthorizationException ex) {
 
-                if (ex != null) {
-                    return;
-                }
-
-                String token = "Bearer " + accessToken;
-                Log.d(TAG, token);
-                getPlaylists(token, userId, callbacks);
-            }
-        });
     }
 
     public void getPlaylists(String token, String userId, SpotifyMusicPlatform.PlaylistFetchTask.Callbacks callbacks) {
@@ -274,7 +188,7 @@ public class YoutubeMusicPlatform extends MusicPlatform {
 
 //            getPlaylistsRecursive(token, userId, callbacks, 0, 0);
 
-            mAmazonService.getPlaylists(token, "me").enqueue(new Callback<ResponseBody>() {
+            mYoutubeService.getPlaylists(token, "me").enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
@@ -307,10 +221,10 @@ public class YoutubeMusicPlatform extends MusicPlatform {
     }
 
     //spotify service interface
-    public interface AmazonService {
+    public interface YoutubeService {
 
         //get user profile
-        @GET("users/me")
+        @GET("channels")
         Call<ResponseBody> getUser(@Header("Authorization") String token);
 
         //get user playlist

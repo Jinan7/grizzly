@@ -86,17 +86,16 @@ public class MainActivity extends SingleFragmentActivity {
                 break;
 
             case YOUTUBE_SIGN_IN_REQUEST_CODE:
-                response = AuthorizationResponse.fromIntent(data);
-                exception = AuthorizationException.fromIntent(data);
-                YoutubeMusicPlatform.getInstance(this).updateAuthState(response, exception);
-                if (response != null) {
+                if ( data != null &&
+                        data.getExtras() != null) {
+                    String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                    if (accountName != null) {
+                        MainFragment frag = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.single_fragment_container);
 
-                    MainFragment frag = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.single_fragment_container);
-
-                    if (frag != null) {
-                        frag.signInNewUser(response, MusicPlatform.Platforms.youtube);
+                        if (frag != null) {
+                            frag.signInNewUser(accountName, MusicPlatform.Platforms.youtube);
+                        }
                     }
-
                 }
                 break;
         }
