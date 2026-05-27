@@ -31,7 +31,7 @@ import spotify.SpotifyMusicPlatform;
 import tidal.TidalMusicPlatform;
 import youtube.YoutubeMusicPlatform;
 
-public class MainFragment extends Fragment implements SpotifyMusicPlatform.Callbacks {
+public class MainFragment extends Fragment implements MusicPlatform.Callbacks {
 
     private static final String TAG = "MainFragmentLogger";
     private static final String ADD_ACCOUNT_DIALOG_TAG = "add account dialog";

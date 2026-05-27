@@ -45,7 +45,7 @@ public class MusicPlatform {
     public void signIn(AuthorizationResponse response, Callbacks callbacks){
     }
 
-    public void fetchPlaylists(String userId, SpotifyMusicPlatform.PlaylistFetchTask.Callbacks callbacks) {
+    public void fetchPlaylists(String userId, FetchPlaylistCallbacks callbacks) {
 
     }
     public int getIconResourceId() {
@@ -96,6 +96,10 @@ public class MusicPlatform {
         public void cancelSignIn();
         public void onSignInFinished(Account account);
         public void onSignInError();
+    }
+
+    public interface  FetchPlaylistCallbacks {
+        public void onFetchPlaylist();
     }
 
 }

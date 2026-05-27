@@ -200,7 +200,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
     }
 
     @Override
-    public void fetchPlaylists(String userId, PlaylistFetchTask.Callbacks callbacks) {
+    public void fetchPlaylists(String userId, FetchPlaylistCallbacks callbacks) {
         super.fetchPlaylists(userId, callbacks);
 
         mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
@@ -263,7 +263,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         });
     }
 
-    public void getPlaylists(String token, String userId, PlaylistFetchTask.Callbacks callbacks) {
+    public void getPlaylists(String token, String userId, FetchPlaylistCallbacks callbacks) {
 
         String playlistLabUserId = PlaylistLab.getInstance().getUserId();
 
@@ -290,7 +290,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
 
     }
 
-    public void getPlaylistsRecursive(String token, String userId, PlaylistFetchTask.Callbacks callbacks, int offset, int depth) {
+    public void getPlaylistsRecursive(String token, String userId, FetchPlaylistCallbacks callbacks, int offset, int depth) {
 
         //this is a recursive function
         //before executing it check how far call has gone in the recursive tree
@@ -340,8 +340,8 @@ public class SpotifyMusicPlatform extends MusicPlatform {
 
         private static final String TAG = "PlaylistFetchTaskLogger";
         private SpotifyLibrary mSpotifyLibrary;
-        private Callbacks mCallbacks;
-        public PlaylistFetchTask(SpotifyLibrary spotifyLibrary, Callbacks callbacks) {
+        private FetchPlaylistCallbacks mCallbacks;
+        public PlaylistFetchTask(SpotifyLibrary spotifyLibrary, FetchPlaylistCallbacks callbacks) {
             mSpotifyLibrary = spotifyLibrary;
             mCallbacks = callbacks;
 
@@ -380,9 +380,6 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         }
 
 
-        public interface  Callbacks {
-            void onFetchPlaylist();
-        }
     }
 
 

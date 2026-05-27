@@ -18,7 +18,7 @@ import java.util.List;
 import spotify.SpotifyMusicPlatform;
 import tidal.TidalMusicPlatform;
 
-public class UserLibraryFragment extends Fragment implements SpotifyMusicPlatform.PlaylistFetchTask.Callbacks {
+public class UserLibraryFragment extends Fragment implements MusicPlatform.FetchPlaylistCallbacks {
 
     private static final String ARGS_USER_ID =  "user id";
     private static final String ARGS_PLATFORM = "platform";

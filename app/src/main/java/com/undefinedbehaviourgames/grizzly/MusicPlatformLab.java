@@ -19,7 +19,7 @@ public class MusicPlatformLab {
         mMusicPlatforms = new ArrayList<>();
         mMusicPlatforms.add(SpotifyMusicPlatform.getInstance(context));
         mMusicPlatforms.add(TidalMusicPlatform.getInstance(context));
-        mMusicPlatforms.add(YoutubeMusicPlatform.getInstance(context));
+//        mMusicPlatforms.add(YoutubeMusicPlatform.getInstance(context));
         mMusicPlatforms.add(AmazonMusicPlatform.getInstance(context));
     }
 

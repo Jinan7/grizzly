@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -25,6 +26,8 @@ import net.openid.appauth.TokenResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import amazon.AmazonLibrary.Data.User.Playlists;
+import amazon.AmazonLibrary.Data.User.Playlists.Playlist;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,6 +40,7 @@ import retrofit2.http.Query;
 import spotify.SpotifyAccount;
 import spotify.SpotifyLibrary;
 import spotify.SpotifyMusicPlatform;
+import spotify.SpotifyPlaylist;
 
 public class AmazonMusicPlatform extends MusicPlatform {
 
@@ -47,7 +51,7 @@ public class AmazonMusicPlatform extends MusicPlatform {
     private static final String REDIRECT_URI = "https://grizzly.undefinedbehaviourgames.com/oauth2redirect";
     private static final String AUTH_URL = "https://www.amazon.com/ap/oa";
     private static final String TOKEN_URL = "https://api.amazon.co.uk/auth/o2";
-    private static final String SCOPE = "profile profile:user_id postal_code";
+    private static final String SCOPE = "profile profile:user_id postal_code music::library:read music::profile";
     public static final int AMAZON_SIGN_IN_REQUEST_CODE = 2;
 
     private AuthorizationServiceConfiguration mServiceConfig;
@@ -191,21 +195,17 @@ public class AmazonMusicPlatform extends MusicPlatform {
     }
 
     public void getUser(String token, Callbacks callbacks) {
-        mAmazonService.getUser(token).enqueue(new Callback<ResponseBody>() {
+        mAmazonService.getUser(token).enqueue(new Callback<AmazonAccount>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<AmazonAccount> call, Response<AmazonAccount> response) {
 
                 //check for cancellation flag
                 if(!cancelSignIn) {
                     if (response.isSuccessful()) {
 
-                        try {
-                            Log.d(TAG, response.body().string());
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-//                        cancelSignIn = false;
-//                        if(callbacks != null) callbacks.onSignInFinished(response.body());
+                        Log.d(TAG, response.body().toString());
+                        cancelSignIn = false;
+                        if(callbacks != null) callbacks.onSignInFinished(response.body());
 
                     } else {
                         Log.d(TAG, response.toString());
@@ -225,14 +225,14 @@ public class AmazonMusicPlatform extends MusicPlatform {
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<AmazonAccount> call, Throwable t) {
                 if(callbacks != null) callbacks.onSignInError();
             }
         });
     }
 
     @Override
-    public void fetchPlaylists(String userId, SpotifyMusicPlatform.PlaylistFetchTask.Callbacks callbacks) {
+    public void fetchPlaylists(String userId, FetchPlaylistCallbacks callbacks) {
         super.fetchPlaylists(userId, callbacks);
 
         mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
@@ -250,7 +250,7 @@ public class AmazonMusicPlatform extends MusicPlatform {
         });
     }
 
-    public void getPlaylists(String token, String userId, SpotifyMusicPlatform.PlaylistFetchTask.Callbacks callbacks) {
+    public void getPlaylists(String token, String userId, FetchPlaylistCallbacks callbacks) {
 
         String playlistLabUserId = PlaylistLab.getInstance().getUserId();
         String playListLabPlatform = PlaylistLab.getInstance().getPlatform();
@@ -274,19 +274,15 @@ public class AmazonMusicPlatform extends MusicPlatform {
 
 //            getPlaylistsRecursive(token, userId, callbacks, 0, 0);
 
-            mAmazonService.getPlaylists(token, "me").enqueue(new Callback<ResponseBody>() {
+            mAmazonService.getPlaylists(token, "me").enqueue(new Callback<AmazonLibrary>() {
                 @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                public void onResponse(Call<AmazonLibrary> call, Response<AmazonLibrary> response) {
                     if (response.isSuccessful()) {
 
-                        try {
-                            Log.d(TAG, response.body().string());
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-//                        SpotifyLibrary library = response.body();
-//                        library.setOwner(userId);
-//                        new SpotifyMusicPlatform.PlaylistFetchTask(library, callbacks).execute(library);
+
+                        AmazonLibrary library = response.body();
+                        library.setOwner(userId);
+                        new PlaylistFetchTask(library, callbacks).execute(library);
 
 //                        Log.d(TAG, String.valueOf(library.getOffset()));
 //                        if (library.getNext() != null) {
@@ -298,7 +294,7 @@ public class AmazonMusicPlatform extends MusicPlatform {
                 }
 
                 @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                public void onFailure(Call<AmazonLibrary> call, Throwable t) {
 
                 }
             });
@@ -310,12 +306,59 @@ public class AmazonMusicPlatform extends MusicPlatform {
     public interface AmazonService {
 
         //get user profile
-        @GET("users/me")
-        Call<ResponseBody> getUser(@Header("Authorization") String token);
+        @GET("me")
+        Call<AmazonAccount> getUser(@Header("Authorization") String token);
 
         //get user playlist
-        @GET("playlists")
-        Call<ResponseBody> getPlaylists(@Header("Authorization") String token, @Query("filter[owners.id]") String userId);
+        @GET("me/playlists")
+        Call<AmazonLibrary> getPlaylists(@Header("Authorization") String token, @Query("filter[owners.id]") String userId);
+
+    }
+
+
+    public static class PlaylistFetchTask extends AsyncTask<AmazonLibrary, Playlist, Void> {
+
+        private static final String TAG = "PlaylistFetchTaskLogger";
+        private AmazonLibrary mAmazonLibrary;
+        private FetchPlaylistCallbacks mCallbacks;
+        public PlaylistFetchTask(AmazonLibrary amazonLibrary, FetchPlaylistCallbacks callbacks) {
+            mAmazonLibrary = amazonLibrary;
+            mCallbacks = callbacks;
+
+        }
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            if (mAmazonLibrary.getOwner().equals(PlaylistLab.getInstance().getUserId()) && !mAmazonLibrary.hasNext()) {
+                PlaylistLab.getInstance().setState(State.FETCHED);
+            }
+            Log.d(TAG, PlaylistLab.getInstance().getState().toString());
+            mCallbacks = null;
+            mAmazonLibrary = null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Playlist... playlist) {
+            super.onProgressUpdate(playlist);
+
+            if (PlaylistLab.getInstance().getUserId().equals(mAmazonLibrary.getOwner())) {
+                PlaylistLab.getInstance().add(playlist[0]);
+                if (mCallbacks != null) mCallbacks.onFetchPlaylist();
+
+            }
+        }
+
+        @Override
+        protected Void doInBackground(AmazonLibrary... library) {
+
+
+            for (Playlist playlist : library[0].getItems()) {
+                playlist.init();
+                publishProgress(playlist);
+            }
+            return null;
+        }
+
 
     }
 }

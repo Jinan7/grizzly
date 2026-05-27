@@ -232,7 +232,7 @@ public class TidalMusicPlatform extends MusicPlatform {
     }
 
     @Override
-    public void fetchPlaylists(String userId, SpotifyMusicPlatform.PlaylistFetchTask.Callbacks callbacks) {
+    public void fetchPlaylists(String userId, FetchPlaylistCallbacks callbacks) {
         super.fetchPlaylists(userId, callbacks);
 
         mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
@@ -250,7 +250,7 @@ public class TidalMusicPlatform extends MusicPlatform {
         });
     }
 
-    public void getPlaylists(String token, String userId, SpotifyMusicPlatform.PlaylistFetchTask.Callbacks callbacks) {
+    public void getPlaylists(String token, String userId, FetchPlaylistCallbacks callbacks) {
 
         String playlistLabUserId = PlaylistLab.getInstance().getUserId();
         String playListLabPlatform = PlaylistLab.getInstance().getPlatform();

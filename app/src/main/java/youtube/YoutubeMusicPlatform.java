@@ -4,13 +4,21 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.YouTubeScopes;
+import com.google.api.services.youtube.model.Channel;
+import com.google.api.services.youtube.model.ChannelListResponse;
 import com.undefinedbehaviourgames.grizzly.MusicPlatform;
 import com.undefinedbehaviourgames.grizzly.PlaylistLab;
 import com.undefinedbehaviourgames.grizzly.R;
@@ -29,7 +37,9 @@ import net.openid.appauth.TokenResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import okhttp3.Request;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -94,9 +104,9 @@ public class YoutubeMusicPlatform extends MusicPlatform {
 
     public void signIn(String accountName, Callbacks callbacks) {
         mCredential.setSelectedAccountName(accountName);
-        YoutubeAccount account = new YoutubeAccount();
-        account.setAccountName(accountName);
-        callbacks.onSignInFinished(account);
+
+
+        new RequestTask(mCredential, callbacks).execute();
     }
 
     public void signIn(AuthorizationResponse response, Callbacks callbacks) {
@@ -158,13 +168,13 @@ public class YoutubeMusicPlatform extends MusicPlatform {
     }
 
     @Override
-    public void fetchPlaylists(String userId, SpotifyMusicPlatform.PlaylistFetchTask.Callbacks callbacks) {
+    public void fetchPlaylists(String userId, FetchPlaylistCallbacks callbacks) {
         super.fetchPlaylists(userId, callbacks);
 
 
     }
 
-    public void getPlaylists(String token, String userId, SpotifyMusicPlatform.PlaylistFetchTask.Callbacks callbacks) {
+    public void getPlaylists(String token, String userId, FetchPlaylistCallbacks callbacks) {
 
         String playlistLabUserId = PlaylistLab.getInstance().getUserId();
         String playListLabPlatform = PlaylistLab.getInstance().getPlatform();
@@ -230,6 +240,59 @@ public class YoutubeMusicPlatform extends MusicPlatform {
         //get user playlist
         @GET("playlists")
         Call<ResponseBody> getPlaylists(@Header("Authorization") String token, @Query("filter[owners.id]") String userId);
+
+    }
+
+    private static class RequestTask extends AsyncTask<Void, Void, List<String>> {
+
+        private static final String TAG = "RequestTaskLogger";
+        private YouTube mService = null;
+        private Callbacks mCallbacks = null;
+
+        public RequestTask(GoogleAccountCredential credential, Callbacks callbacks) {
+
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new YouTube.Builder(
+                    transport, jsonFactory, credential
+            ).setApplicationName("Grizzly").build();
+            mCallbacks = callbacks;
+        }
+        @Override
+        protected List<String> doInBackground(Void... voids) {
+            try {
+                return getChannelInfo();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(List<String> result) {
+            super.onPostExecute(result);
+            if (result != null) {
+                YoutubeAccount account = new YoutubeAccount();
+                account.setAccountName(result.get(0));
+                mCallbacks.onSignInFinished(account);
+            } else {
+                mCallbacks.onSignInError();
+            }
+        }
+
+        private List<String> getChannelInfo() throws IOException {
+            List<String> channelInfo = new ArrayList<>();
+            ChannelListResponse response = mService.channels().list("snippet,contentDetails,statistics").setMine(true).execute();
+            List<Channel> channels = response.getItems();
+
+            if (channels != null) {
+                channelInfo.add(channels.get(0).getSnippet().getTitle());
+            }
+
+            return channelInfo;
+        }
 
     }
 }
