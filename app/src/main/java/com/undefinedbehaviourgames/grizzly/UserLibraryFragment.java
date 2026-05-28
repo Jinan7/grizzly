@@ -1,5 +1,6 @@
 package com.undefinedbehaviourgames.grizzly;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,7 +72,7 @@ public class UserLibraryFragment extends Fragment implements MusicPlatform.Fetch
     }
 
 
-    private class PlaylistHolder extends RecyclerView.ViewHolder {
+    private class PlaylistHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private Playlist mPlaylist;
         private TextView mPlaylistNameView;
@@ -87,6 +88,12 @@ public class UserLibraryFragment extends Fragment implements MusicPlatform.Fetch
             mPlaylist = playlist;
             mPlaylistNameView.setText(playlist.getName());
             mPlaylistOwnerView.setText(playlist.getOwner());
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = PlaylistActivity.newIntent(getContext());
+            startActivity(intent);
         }
     }
 
