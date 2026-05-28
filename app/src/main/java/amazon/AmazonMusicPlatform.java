@@ -51,7 +51,7 @@ public class AmazonMusicPlatform extends MusicPlatform {
     private static final String REDIRECT_URI = "https://grizzly.undefinedbehaviourgames.com/oauth2redirect";
     private static final String AUTH_URL = "https://www.amazon.com/ap/oa";
     private static final String TOKEN_URL = "https://api.amazon.com/auth/o2/token";
-    private static final String SCOPE = "profile profile:user_id postal_code";
+    private static final String SCOPE = "profile profile:user_id postal_code music::profile music::library:read";
     public static final int AMAZON_SIGN_IN_REQUEST_CODE = 2;
 
     private AuthorizationServiceConfiguration mServiceConfig;
@@ -315,7 +315,7 @@ public class AmazonMusicPlatform extends MusicPlatform {
     public interface AmazonService {
 
         //get user profile
-        @GET("user/profile")
+        @GET("me")
         Call<AmazonAccount> getUser(@Header("Authorization") String token);
 
         //get user playlist

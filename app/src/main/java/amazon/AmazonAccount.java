@@ -8,22 +8,22 @@ import spotify.SpotifyAccount;
 
 public class AmazonAccount extends Account {
 
-//    private Data data;
-//
-//    private class Data {
-//
-//        private User user;
-//
-//        private class User {
-//            private String id;
-//            private String name;
-//            private String handle;
-//        }
-//    }
+    private Data data;
 
-    private String user_id;
-    private String name;
-    private String email;
+    private class Data {
+
+        private User user;
+
+        private class User {
+            private String id;
+            private String name;
+            private String handle;
+        }
+    }
+
+//    private String user_id;
+//    private String name;
+//    private String email;
 
 
 
@@ -42,11 +42,11 @@ public class AmazonAccount extends Account {
 
     @Override
     public String getID() {
-        return user_id;
+        return data.user.id;
     }
 
     @Override
     public String getAccountName() {
-        return name;
+        return data.user.name;
     }
 }

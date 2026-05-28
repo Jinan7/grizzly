@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import amazon.AmazonMusicPlatform;
 import spotify.SpotifyMusicPlatform;
 import tidal.TidalMusicPlatform;
 
@@ -47,6 +48,8 @@ public class UserLibraryFragment extends Fragment implements MusicPlatform.Fetch
             case MusicPlatform.Platforms.tidal:
                 TidalMusicPlatform.getInstance(getContext()).fetchPlaylists(userId, this);
                 break;
+            case MusicPlatform.Platforms.amazon:
+                AmazonMusicPlatform.getInstance(getContext()).fetchPlaylists(userId, this);
         }
 
     }
