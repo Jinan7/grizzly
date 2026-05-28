@@ -5,9 +5,9 @@
     android:id="@+id/main_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UserLibraryActivity">
+    tools:context=".MainActivity">
 
-    <include layout="@layout/component_user_library_toolbar"/>
+    <include layout="@layout/component_playlist_toolbar"/>
 
     <RelativeLayout
 
@@ -20,7 +20,7 @@
             android:layout_above="@id/bottom_nav_view">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/playlists_recycler_view"
+                android:id="@+id/songs_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="16dp" />
