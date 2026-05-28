@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -37,6 +38,7 @@ import retrofit2.http.Query;
 import spotify.SpotifyAccount;
 import spotify.SpotifyLibrary;
 import spotify.SpotifyMusicPlatform;
+import spotify.SpotifyPlaylist;
 
 public class TidalMusicPlatform extends MusicPlatform {
 
@@ -274,18 +276,18 @@ public class TidalMusicPlatform extends MusicPlatform {
 
 //            getPlaylistsRecursive(token, userId, callbacks, 0, 0);
 
-            mTidalService.getPlaylists(token, "me").enqueue(new Callback<ResponseBody>() {
+            mTidalService.getPlaylists(token, "me").enqueue(new Callback<TidalLibrary>() {
                 @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                public void onResponse(Call<TidalLibrary> call, Response<TidalLibrary> response) {
                     if (response.isSuccessful()) {
 
-                        try {
-                            Log.d(TAG, response.body().string());
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-//                        SpotifyLibrary library = response.body();
-//                        library.setOwner(userId);
+//                        try {
+//                            Log.d(TAG, response.body().string());
+//                        } catch (IOException e) {
+//                            throw new RuntimeException(e);
+//                        }
+                        TidalLibrary library = response.body();
+                        library.setOwner(userId);
 //                        new SpotifyMusicPlatform.PlaylistFetchTask(library, callbacks).execute(library);
 
 //                        Log.d(TAG, String.valueOf(library.getOffset()));
@@ -298,7 +300,7 @@ public class TidalMusicPlatform extends MusicPlatform {
                 }
 
                 @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                public void onFailure(Call<TidalLibrary> call, Throwable t) {
 
                 }
             });
@@ -315,7 +317,54 @@ public class TidalMusicPlatform extends MusicPlatform {
 
         //get user playlist
         @GET("playlists")
-        Call<ResponseBody> getPlaylists(@Header("Authorization") String token, @Query("filter[owners.id]") String userId);
+        Call<TidalLibrary> getPlaylists(@Header("Authorization") String token, @Query("filter[owners.id]") String userId);
+
+    }
+
+
+    public static class PlaylistFetchTask extends AsyncTask<TidalLibrary, TidalLibrary.Data.Playlist, Void> {
+
+        private static final String TAG = "PlaylistFetchTaskLogger";
+        private TidalLibrary mTidalLibrary;
+        private FetchPlaylistCallbacks mCallbacks;
+        public PlaylistFetchTask(TidalLibrary tidalLibrary, FetchPlaylistCallbacks callbacks) {
+            mTidalLibrary = tidalLibrary;
+            mCallbacks = callbacks;
+
+        }
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            if (mTidalLibrary.getOwner().equals(PlaylistLab.getInstance().getUserId()) && mTidalLibrary.getNext() == null) {
+                PlaylistLab.getInstance().setState(State.FETCHED);
+            }
+            Log.d(TAG, PlaylistLab.getInstance().getState().toString());
+            mCallbacks = null;
+            mTidalLibrary = null;
+        }
+
+        @Override
+        protected void onProgressUpdate(TidalLibrary.Data.Playlist... playlist) {
+            super.onProgressUpdate(playlist);
+
+            if (PlaylistLab.getInstance().getUserId().equals(mTidalLibrary.getOwner())) {
+                PlaylistLab.getInstance().add(playlist[0]);
+                if (mCallbacks != null) mCallbacks.onFetchPlaylist();
+
+            }
+        }
+
+        @Override
+        protected Void doInBackground(TidalLibrary... library) {
+
+
+            for (TidalLibrary.Data.Playlist tidalPlaylist : library[0].getItems()) {
+                tidalPlaylist.init();
+                publishProgress(tidalPlaylist);
+            }
+            return null;
+        }
+
 
     }
 }
