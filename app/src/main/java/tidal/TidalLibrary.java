@@ -1,5 +1,7 @@
 package tidal;
 
+import androidx.annotation.NonNull;
+
 import com.undefinedbehaviourgames.grizzly.Playlist;
 
 import java.util.List;
@@ -8,34 +10,49 @@ import spotify.SpotifyPlaylist;
 
 public class TidalLibrary {
 
-    private Data data;
+    private List<Playlist> data;
     private String owner;
 
-    public class Data {
 
-        private List<Playlist> included;
-
-        public class Playlist  extends com.undefinedbehaviourgames.grizzly.Playlist {
-            private String id;
-            private Attributes attributes;
-            public class Attributes {
-                private String name;
-                private String description;
-            }
+    public class Playlist  extends com.undefinedbehaviourgames.grizzly.Playlist {
+        private String id;
+        private Attributes attributes;
+        public class Attributes {
+            private String name;
+            private String description;
 
             @Override
-            public void init() {
-                super.mName = attributes.name;
-                super.mDescription = attributes.description;
-                super.mID = id;
-                super.mOwner = "";
+            public String toString() {
+                return "Attributes{" +
+                        "name='" + name + '\'' +
+                        ", description='" + description + '\'' +
+                        '}';
             }
+        }
+
+        @Override
+        public void init() {
+            super.mName = attributes.name;
+            super.mDescription = attributes.description;
+            super.mID = id;
+            super.mOwner = "";
+        }
+
+        @Override
+        public String toString() {
+            return "Playlist{" +
+                    "id='" + id + '\'' +
+                    ", attributes=" + attributes +
+                    '}';
         }
     }
 
 
-    public List<Data.Playlist> getItems() {
-        return data.included;
+
+
+
+    public List<Playlist> getItems() {
+        return data;
     }
     public String getOwner() {
         return owner;
@@ -47,5 +64,12 @@ public class TidalLibrary {
 
     public String getNext() {
         return null;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return owner.toString() + "\n"
+                + data.toString();
     }
 }

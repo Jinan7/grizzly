@@ -288,6 +288,9 @@ public class TidalMusicPlatform extends MusicPlatform {
 //                        }
                         TidalLibrary library = response.body();
                         library.setOwner(userId);
+
+                        Log.d(TAG, library.toString());
+                        new TidalMusicPlatform.PlaylistFetchTask(library, callbacks).execute(library);
 //                        new SpotifyMusicPlatform.PlaylistFetchTask(library, callbacks).execute(library);
 
 //                        Log.d(TAG, String.valueOf(library.getOffset()));
@@ -301,7 +304,7 @@ public class TidalMusicPlatform extends MusicPlatform {
 
                 @Override
                 public void onFailure(Call<TidalLibrary> call, Throwable t) {
-
+                    Log.d(TAG, t.toString());
                 }
             });
         }
@@ -322,7 +325,7 @@ public class TidalMusicPlatform extends MusicPlatform {
     }
 
 
-    public static class PlaylistFetchTask extends AsyncTask<TidalLibrary, TidalLibrary.Data.Playlist, Void> {
+    public static class PlaylistFetchTask extends AsyncTask<TidalLibrary, TidalLibrary.Playlist, Void> {
 
         private static final String TAG = "PlaylistFetchTaskLogger";
         private TidalLibrary mTidalLibrary;
@@ -344,7 +347,7 @@ public class TidalMusicPlatform extends MusicPlatform {
         }
 
         @Override
-        protected void onProgressUpdate(TidalLibrary.Data.Playlist... playlist) {
+        protected void onProgressUpdate(TidalLibrary.Playlist... playlist) {
             super.onProgressUpdate(playlist);
 
             if (PlaylistLab.getInstance().getUserId().equals(mTidalLibrary.getOwner())) {
@@ -358,7 +361,7 @@ public class TidalMusicPlatform extends MusicPlatform {
         protected Void doInBackground(TidalLibrary... library) {
 
 
-            for (TidalLibrary.Data.Playlist tidalPlaylist : library[0].getItems()) {
+            for (TidalLibrary.Playlist tidalPlaylist : library[0].getItems()) {
                 tidalPlaylist.init();
                 publishProgress(tidalPlaylist);
             }
