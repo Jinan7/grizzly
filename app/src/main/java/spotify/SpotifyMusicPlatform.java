@@ -26,6 +26,7 @@ import net.openid.appauth.AuthorizationServiceConfiguration;
 import net.openid.appauth.ResponseTypeValues;
 import net.openid.appauth.TokenResponse;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -33,6 +34,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,6 +42,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public class SpotifyMusicPlatform extends MusicPlatform {
@@ -218,6 +221,25 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         });
     }
 
+    @Override
+    public void fetchPlaylistsItems(String playlistId, FetchPlaylistItemsCallbacks callbacks) {
+        super.fetchPlaylistsItems(playlistId, callbacks);
+
+        mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
+            @Override
+            public void execute(@Nullable String accessToken, @Nullable String idToken, @Nullable AuthorizationException ex) {
+
+                if (ex != null) {
+                    return;
+                }
+
+                String token = "Bearer " + accessToken;
+                Log.d(TAG, token);
+                getPlaylistItems(token, playlistId, callbacks);
+            }
+        });
+    }
+
     public void cancel() {
         cancelSignIn = true;
     }
@@ -263,6 +285,26 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         });
     }
 
+    public void getPlaylistItems(String token, String playlistId, FetchPlaylistItemsCallbacks callbacks) {
+
+        mSpotifyService.getPlaylistItems(token, playlistId).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    try {
+                        Log.d(TAG, response.body().string());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.d(TAG, t.toString());
+            }
+        });
+    }
     public void getPlaylists(String token, String userId, FetchPlaylistCallbacks callbacks) {
 
         String playlistLabUserId = PlaylistLab.getInstance().getUserId();
@@ -332,6 +374,10 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         //get user playlist
         @GET("me/playlists")
         Call<SpotifyLibrary> getPlaylists(@Header("Authorization") String token, @Query("offset") int offset);
+
+        //get playlist items
+        @GET("playlists/{playlist_id}/items")
+        Call<ResponseBody> getPlaylistItems(@Header("Authorization") String token, @Path("playlist_id") String id);
 
     }
 

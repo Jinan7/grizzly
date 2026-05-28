@@ -48,6 +48,7 @@ public class MusicPlatform {
     public void fetchPlaylists(String userId, FetchPlaylistCallbacks callbacks) {
 
     }
+    public void fetchPlaylistsItems(String playlistId, FetchPlaylistItemsCallbacks callbacks) {}
     public int getIconResourceId() {
         return mIconResourceId;
     }
@@ -100,6 +101,10 @@ public class MusicPlatform {
 
     public interface  FetchPlaylistCallbacks {
         public void onFetchPlaylist();
+    }
+
+    public interface  FetchPlaylistItemsCallbacks {
+        public void onFetchPlaylistItems();
     }
 
 }
