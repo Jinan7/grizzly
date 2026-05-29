@@ -2,6 +2,9 @@ package spotify;
 
 import androidx.annotation.NonNull;
 
+import com.undefinedbehaviourgames.grizzly.MusicPlatform;
+import com.undefinedbehaviourgames.grizzly.Playlist;
+
 import java.util.List;
 
 public class SpotifyLibrary {
@@ -14,7 +17,7 @@ public class SpotifyLibrary {
     String total;
     String owner;
 
-    List<SpotifyPlaylist> items;
+    List<Playlist> items;
 
     public String getHref() {
         return href;
@@ -56,11 +59,11 @@ public class SpotifyLibrary {
         this.previous = previous;
     }
 
-    public List<SpotifyPlaylist> getItems() {
+    public List<Playlist> getItems() {
         return items;
     }
 
-    public void setItems(List<SpotifyPlaylist> items) {
+    public void setItems(List<Playlist> items) {
         this.items = items;
     }
 
@@ -91,5 +94,74 @@ public class SpotifyLibrary {
                 "\ntotal: " + total +
                 "\nitems: " + items.toString() +
                 "\n";
+    }
+
+    public class Playlist extends com.undefinedbehaviourgames.grizzly.Playlist {
+
+        boolean collaborative;
+        String description;
+        String href;
+        String id;
+        String name;
+
+        SpotifyOwner owner;
+
+        public Playlist() {
+            mMusicServiceName = MusicPlatform.Platforms.spotify;
+        }
+        @Override
+        public void init() {
+            super.mMusicServiceName = MusicPlatform.Platforms.spotify;
+            super.mName = name;
+            super.mDescription = description;
+            super.mID = id;
+            super.mOwner = owner.display_name;
+        }
+
+
+        public SpotifyOwner getSpotifyOwner() {
+            return owner;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "collaborative: " + collaborative +
+                    "\ndescription: " + description +
+                    "\nhref: " + href +
+                    "\nid: " + id +
+                    "\nname: " + name +
+                    "\ndisplay_name: " + owner.display_name +
+                    "\n";
+        }
+
+
+        public class SpotifyOwner {
+
+            String display_name;
+            String id;
+
+            public String getDisplay_name() {
+                return display_name;
+            }
+
+            public void setDisplay_name(String display_name) {
+                this.display_name = display_name;
+            }
+
+            public String getId() {
+                return id;
+            }
+
+            public void setId(String id) {
+                this.id = id;
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return "display_name: " + display_name;
+            }
+        }
     }
 }

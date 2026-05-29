@@ -7,7 +7,6 @@ import com.undefinedbehaviourgames.grizzly.Playlist;
 
 import java.util.List;
 
-import spotify.SpotifyPlaylist;
 
 public class TidalLibrary {
 
@@ -31,12 +30,10 @@ public class TidalLibrary {
             }
         }
 
-        public Playlist() {
-            mMusicServiceName = MusicPlatform.Platforms.tidal;
-        }
 
         @Override
         public void init() {
+            super.mMusicServiceName = MusicPlatform.Platforms.tidal;
             super.mName = attributes.name;
             super.mDescription = attributes.description;
             super.mID = id;

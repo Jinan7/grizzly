@@ -80,7 +80,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
             mSingleton = new SpotifyMusicPlatform(context);
             mSingleton.setIconResourceId(R.drawable.spotify);
             mSingleton.setPlatformName(Platforms.spotify);
-            mSingleton.TAG = Platforms.tidal;
+            mSingleton.TAG = Platforms.spotify;
             mSingleton.configure();
         }
         return mSingleton;
@@ -287,7 +287,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
     }
 
     public void getPlaylistItems(String token, String playlistId, FetchPlaylistItemsCallbacks callbacks) {
-
+        Log.d(TAG, "Hello world");
         mSpotifyService.getPlaylistItems(token, playlistId).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -383,7 +383,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
     }
 
 
-    public static class PlaylistFetchTask extends AsyncTask<SpotifyLibrary, SpotifyPlaylist, Void> {
+    public static class PlaylistFetchTask extends AsyncTask<SpotifyLibrary, SpotifyLibrary.Playlist, Void> {
 
         private static final String TAG = "PlaylistFetchTaskLogger";
         private SpotifyLibrary mSpotifyLibrary;
@@ -405,7 +405,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         }
 
         @Override
-        protected void onProgressUpdate(SpotifyPlaylist... playlist) {
+        protected void onProgressUpdate(SpotifyLibrary.Playlist... playlist) {
             super.onProgressUpdate(playlist);
 
             if (PlaylistLab.getInstance().getUserId().equals(mSpotifyLibrary.getOwner())) {
@@ -419,7 +419,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         protected Void doInBackground(SpotifyLibrary... library) {
 
 
-            for (SpotifyPlaylist spotifyPlaylist : library[0].getItems()) {
+            for (SpotifyLibrary.Playlist spotifyPlaylist : library[0].getItems()) {
                 spotifyPlaylist.init();
                 publishProgress(spotifyPlaylist);
             }

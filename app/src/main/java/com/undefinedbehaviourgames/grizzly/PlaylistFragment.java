@@ -39,8 +39,10 @@ public class PlaylistFragment extends Fragment implements MusicPlatform.FetchPla
         switch (platform) {
             case MusicPlatform.Platforms.spotify:
                 SpotifyMusicPlatform.getInstance(getContext()).fetchPlaylistsItems(playlistId, this);
+                break;
             case MusicPlatform.Platforms.tidal:
                 TidalMusicPlatform.getInstance(getContext()).fetchPlaylistsItems(playlistId, this);
+                break;
         }
 
     }
