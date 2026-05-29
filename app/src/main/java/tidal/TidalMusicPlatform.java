@@ -270,20 +270,20 @@ public class TidalMusicPlatform extends MusicPlatform {
 
     public void getPlaylistItems(String token, String playlistId, FetchPlaylistItemsCallbacks callbacks) {
 
-        mTidalService.getPlaylistItems(token, playlistId).enqueue(new Callback<ResponseBody>() {
+        Log.d(TAG, token);
+        Log.d(TAG, playlistId);
+        mTidalService.getPlaylistItems(token, playlistId, new String[] {"items", "items.artists"}).enqueue(new Callback<TidalPlaylist>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<TidalPlaylist> call, Response<TidalPlaylist> response) {
                 if (response.isSuccessful()) {
-                    try {
-                        Log.d(TAG, response.body().string());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+
+                    TidalPlaylist items = response.body();
+                    Log.d(TAG, items.toString());
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<TidalPlaylist> call, Throwable t) {
                 Log.d(TAG, t.toString());
             }
         });
@@ -355,8 +355,8 @@ public class TidalMusicPlatform extends MusicPlatform {
         Call<TidalLibrary> getPlaylists(@Header("Authorization") String token, @Query("filter[owners.id]") String userId);
 
         //get playlist items
-        @GET("playlists/{playlist_id}")
-        Call<ResponseBody> getPlaylistItems(@Header("Authorization") String token, @Path("playlist_id") String id);
+        @GET("playlists/{playlist_id}/relationships/items")
+        Call<TidalPlaylist> getPlaylistItems(@Header("Authorization") String token, @Path("playlist_id") String id, @Query("include") String[] include);
 
     }
 
