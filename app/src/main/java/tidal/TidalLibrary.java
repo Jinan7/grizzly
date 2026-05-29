@@ -2,6 +2,7 @@ package tidal;
 
 import androidx.annotation.NonNull;
 
+import com.undefinedbehaviourgames.grizzly.MusicPlatform;
 import com.undefinedbehaviourgames.grizzly.Playlist;
 
 import java.util.List;
@@ -28,6 +29,10 @@ public class TidalLibrary {
                         ", description='" + description + '\'' +
                         '}';
             }
+        }
+
+        public Playlist() {
+            mMusicServiceName = MusicPlatform.Platforms.tidal;
         }
 
         @Override

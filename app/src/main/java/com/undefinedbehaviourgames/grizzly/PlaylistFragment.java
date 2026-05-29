@@ -11,14 +11,43 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class PlaylistFragment extends Fragment {
+import spotify.SpotifyMusicPlatform;
+import tidal.TidalMusicPlatform;
 
+public class PlaylistFragment extends Fragment implements MusicPlatform.FetchPlaylistItemsCallbacks {
+
+    private static final String ARGS_PLAYLIST_ID = "playlist_id";
+    private static final String ARGS_PLATFORM = "platform";
     private RecyclerView mRecyclerView;
-    public static PlaylistFragment newInstance() {
+    public static PlaylistFragment newInstance(String playlistId, String musicServiceName) {
         PlaylistFragment fragment = new PlaylistFragment();
+        Bundle args = new Bundle();
+        args.putString(ARGS_PLAYLIST_ID, playlistId);
+        args.putString(ARGS_PLATFORM, musicServiceName);
+        fragment.setArguments(args);
         return fragment;
     }
 
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        String playlistId = getArguments().getString(ARGS_PLAYLIST_ID);
+        String platform = getArguments().getString(ARGS_PLATFORM);
+
+        switch (platform) {
+            case MusicPlatform.Platforms.spotify:
+                SpotifyMusicPlatform.getInstance(getContext()).fetchPlaylistsItems(playlistId, this);
+            case MusicPlatform.Platforms.tidal:
+                TidalMusicPlatform.getInstance(getContext()).fetchPlaylistsItems(playlistId, this);
+        }
+
+    }
+    @Override
+    public void onFetchPlaylistItems() {
+
+    }
 
     @Nullable
     @Override
@@ -32,6 +61,7 @@ public class PlaylistFragment extends Fragment {
 
         return v;
     }
+
 
 
 

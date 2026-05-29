@@ -74,6 +74,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         mContext = context.getApplicationContext();
         cancelSignIn = false;
     }
+
     public static SpotifyMusicPlatform getInstance(Context context) {
         if (mSingleton == null) {
             mSingleton = new SpotifyMusicPlatform(context);

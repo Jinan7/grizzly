@@ -82,6 +82,7 @@ public class UserLibraryFragment extends Fragment implements MusicPlatform.Fetch
             super(itemView);
             mPlaylistNameView = (TextView) itemView.findViewById(R.id.playlist_name);
             mPlaylistOwnerView = (TextView) itemView.findViewById(R.id.owner_name);
+            itemView.setOnClickListener(this);
         }
 
         public void bind(Playlist playlist) {
@@ -92,7 +93,7 @@ public class UserLibraryFragment extends Fragment implements MusicPlatform.Fetch
 
         @Override
         public void onClick(View v) {
-            Intent intent = PlaylistActivity.newIntent(getContext());
+            Intent intent = PlaylistActivity.newIntent(getContext(), mPlaylist.getID(), mPlaylist.getMusicServiceName());
             startActivity(intent);
         }
     }

@@ -2,6 +2,7 @@ package com.undefinedbehaviourgames.grizzly;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Base64;
 
 import net.openid.appauth.AuthorizationResponse;

@@ -32,7 +32,7 @@ public class UserLibraryActivity extends SingleFragmentActivity {
     }
 
     public static Intent newIntent(Context context, String user_id, String platform) {
-        Intent intent = new Intent(context, PlaylistActivity.class);
+        Intent intent = new Intent(context,UserLibraryActivity.class);
         intent.putExtra(EXTRA_USER_ID, user_id);
         intent.putExtra(EXTRA_PLATFORM, platform);
         return intent;

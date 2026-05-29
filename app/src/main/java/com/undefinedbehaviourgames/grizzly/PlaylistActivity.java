@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment;
 
 public class PlaylistActivity extends SingleFragmentActivity {
 
+    private static final String EXTRA_PLAYLIST_ID = "com.undefinedbehaviourgames.grizzly.playlist_id";
+    private static final String EXTRA_PLATFORM = "com.undefinedbehaviourgames.grizzly.playlist_activity.platform";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,10 +22,15 @@ public class PlaylistActivity extends SingleFragmentActivity {
 
     @Override
     public Fragment createFragment() {
-        return PlaylistFragment.newInstance();
+        String playlistId = getIntent().getStringExtra(EXTRA_PLAYLIST_ID);
+        String musicServiceName = getIntent().getStringExtra(EXTRA_PLATFORM);
+        return PlaylistFragment.newInstance(playlistId, musicServiceName);
     }
 
-    public static Intent newIntent(Context context) {
-        return new Intent(context, PlaylistActivity.class);
+    public static Intent newIntent(Context context, String playlistId, String musicServiceName) {
+        Intent intent = new Intent(context, PlaylistActivity.class);
+        intent.putExtra(EXTRA_PLAYLIST_ID, playlistId);
+        intent.putExtra(EXTRA_PLATFORM, musicServiceName);
+        return intent;
     }
 }

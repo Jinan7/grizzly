@@ -6,6 +6,7 @@ public abstract class Playlist {
     public String mDescription;
     public String mID;
     public String mOwner;
+    public String mMusicServiceName;
     public Playlist(){
 
     }
@@ -43,5 +44,13 @@ public abstract class Playlist {
 
     public void setOwner(String owner) {
         mOwner = owner;
+    }
+
+    public String getMusicServiceName() {
+        return mMusicServiceName;
+    }
+
+    public void setMusicServiceName(String musicServiceName) {
+        mMusicServiceName = musicServiceName;
     }
 }

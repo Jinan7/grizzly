@@ -2,6 +2,7 @@ package spotify;
 
 import androidx.annotation.NonNull;
 
+import com.undefinedbehaviourgames.grizzly.MusicPlatform;
 import com.undefinedbehaviourgames.grizzly.Playlist;
 
 public class SpotifyPlaylist extends Playlist {
@@ -14,6 +15,9 @@ public class SpotifyPlaylist extends Playlist {
 
     SpotifyOwner owner;
 
+    public SpotifyPlaylist() {
+        mMusicServiceName = MusicPlatform.Platforms.spotify;
+    }
     @Override
     public void init() {
         super.mName = name;
