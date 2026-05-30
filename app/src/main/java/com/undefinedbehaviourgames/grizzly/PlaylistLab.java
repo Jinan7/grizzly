@@ -10,7 +10,7 @@ public class PlaylistLab {
     private State state; //variable to store the current state of playlistlab
     private String userId; //variable to store whose playlist is  currently loaded in playlistlab
     private int total; //variable to store the total number of playlist to be fetched
-    private int fetched; //variable to store the total number of items fetched
+//    private int fetched; //variable to store the total number of items fetched
     private String platform;
     private PlaylistLab() {
         state = State.IDLE;
@@ -50,9 +50,9 @@ public class PlaylistLab {
         this.userId = userId;
     }
 
-    public boolean fetchComplete() {
-        return mPlaylist.size() == total;
-    }
+//    public boolean fetchComplete() {
+//        return mPlaylist.size() == total;
+//    }
 
     public int getTotal() {
         return total;
@@ -61,14 +61,14 @@ public class PlaylistLab {
     public void setTotal(int total) {
         this.total = total;
     }
+//
+//    public int getFetched() {
+//        return fetched;
+//    }
 
-    public int getFetched() {
-        return fetched;
-    }
-
-    public void setFetched(int fetched) {
-        this.fetched = fetched;
-    }
+//    public void setFetched(int fetched) {
+//        this.fetched = fetched;
+//    }
 
     public void add(Playlist playlist) {
         mPlaylist.add(playlist);

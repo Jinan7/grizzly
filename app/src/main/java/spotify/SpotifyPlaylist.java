@@ -15,14 +15,22 @@ public class SpotifyPlaylist {
     private String description;
     private Items items;
 
-    private class Items {
+    public List<Items.Item> getItems() {
+        return items.items;
+    }
+
+    public class Items {
 
         private List<Item> items;
 
-        private class Item {
+        public class Item {
 
             private Track item;
-            private class Track implements PlaylistItem{
+
+            public Track getTrack() {
+                return item;
+            }
+            public class Track implements PlaylistItem{
 
                 private String id;
                 private String name;

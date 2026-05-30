@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 
 import com.undefinedbehaviourgames.grizzly.MusicPlatform;
 import com.undefinedbehaviourgames.grizzly.Playlist;
+import com.undefinedbehaviourgames.grizzly.PlaylistItemLab;
 import com.undefinedbehaviourgames.grizzly.PlaylistLab;
 import com.undefinedbehaviourgames.grizzly.R;
 import com.undefinedbehaviourgames.grizzly.State;
@@ -288,13 +289,15 @@ public class SpotifyMusicPlatform extends MusicPlatform {
 
     public void getPlaylistItems(String token, String playlistId, FetchPlaylistItemsCallbacks callbacks) {
         Log.d(TAG, playlistId);
+
+        PlaylistItemLab.getInstance().setPlaylistItems(new ArrayList<>());
         mSpotifyService.getPlaylistItems(token, playlistId).enqueue(new Callback<SpotifyPlaylist>() {
             @Override
             public void onResponse(Call<SpotifyPlaylist> call, Response<SpotifyPlaylist> response) {
                 if (response.isSuccessful()) {
 
                     SpotifyPlaylist playlist = response.body();
-                    Log.d(TAG, playlist.toString());
+                    new PlaylistItemsFetchTask(callbacks).execute(playlist);
                 }
             }
 
@@ -427,5 +430,46 @@ public class SpotifyMusicPlatform extends MusicPlatform {
 
     }
 
+
+    public static class PlaylistItemsFetchTask extends AsyncTask<SpotifyPlaylist, SpotifyPlaylist.Items.Item.Track, Void> {
+
+        FetchPlaylistItemsCallbacks mCallbacks;
+        public PlaylistItemsFetchTask(FetchPlaylistItemsCallbacks callbacks) {
+            mCallbacks = callbacks;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            mCallbacks = null;
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            mCallbacks = null;
+        }
+
+        @Override
+        protected void onProgressUpdate(SpotifyPlaylist.Items.Item.Track... values) {
+            super.onProgressUpdate(values);
+
+            PlaylistItemLab.getInstance().add(values[0]);
+            mCallbacks.onFetchPlaylistItems();
+
+
+        }
+
+        @Override
+        protected Void doInBackground(SpotifyPlaylist... playlists) {
+
+            for (SpotifyPlaylist.Items.Item item : playlists[0].getItems()) {
+                publishProgress(item.getTrack());
+            }
+
+            return null;
+        }
+    }
 
 }
