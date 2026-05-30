@@ -2,6 +2,10 @@ package spotify;
 
 import androidx.annotation.NonNull;
 
+import com.undefinedbehaviourgames.grizzly.MusicPlatform;
+import com.undefinedbehaviourgames.grizzly.PlaylistItem;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class SpotifyPlaylist {
@@ -18,13 +22,37 @@ public class SpotifyPlaylist {
         private class Item {
 
             private Track item;
-            private class Track {
+            private class Track implements PlaylistItem{
 
                 private String id;
                 private String name;
                 private Album album;
                 private List<Artists> artists;
 
+
+                @Override
+                public String getId() {
+                    return id;
+                }
+
+                @Override
+                public String getTitle() {
+                    return name;
+                }
+
+                @Override
+                public String getArtist() {
+                    ArrayList<String> result = new ArrayList<>();
+                    for (Artists artist : artists) {
+                        result.add(artist.name);
+                    }
+                    return String.join(", ", result);
+                }
+
+                @Override
+                public String getMusicPlatform() {
+                    return MusicPlatform.Platforms.spotify;
+                }
 
                 private class Album {
                     private String name;

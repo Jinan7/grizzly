@@ -2,6 +2,9 @@ package tidal;
 
 import androidx.annotation.NonNull;
 
+import com.undefinedbehaviourgames.grizzly.MusicPlatform;
+import com.undefinedbehaviourgames.grizzly.PlaylistItem;
+
 import java.util.List;
 
 public class TidalPlaylist {
@@ -12,25 +15,32 @@ public class TidalPlaylist {
 
 
 
-        public class Item {
+        public class Item implements PlaylistItem {
             private String id;
             private String type;
             private Attributes attributes;
             private Relationships relationships;
 
+            @Override
             public String getId() {
                 return id;
             }
             public String getType() {
                 return type;
             }
-
+            @Override
             public String getTitle() {
                 return attributes.title;
             }
 
-            public String getName() {
+            @Override
+            public String getArtist() {
                 return attributes.name;
+            }
+
+            @Override
+            public String getMusicPlatform() {
+                return MusicPlatform.Platforms.tidal;
             }
 
             public class Attributes {
