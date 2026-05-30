@@ -287,21 +287,19 @@ public class SpotifyMusicPlatform extends MusicPlatform {
     }
 
     public void getPlaylistItems(String token, String playlistId, FetchPlaylistItemsCallbacks callbacks) {
-        Log.d(TAG, "Hello world");
-        mSpotifyService.getPlaylistItems(token, playlistId).enqueue(new Callback<ResponseBody>() {
+        Log.d(TAG, playlistId);
+        mSpotifyService.getPlaylistItems(token, playlistId).enqueue(new Callback<SpotifyPlaylist>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<SpotifyPlaylist> call, Response<SpotifyPlaylist> response) {
                 if (response.isSuccessful()) {
-                    try {
-                        Log.d(TAG, response.body().string());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+
+                    SpotifyPlaylist playlist = response.body();
+                    Log.d(TAG, playlist.toString());
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<SpotifyPlaylist> call, Throwable t) {
                 Log.d(TAG, t.toString());
             }
         });
@@ -377,8 +375,8 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         Call<SpotifyLibrary> getPlaylists(@Header("Authorization") String token, @Query("offset") int offset);
 
         //get playlist items
-        @GET("playlists/{playlist_id}/items")
-        Call<ResponseBody> getPlaylistItems(@Header("Authorization") String token, @Path("playlist_id") String id);
+        @GET("playlists/{playlist_id}")
+        Call<SpotifyPlaylist> getPlaylistItems(@Header("Authorization") String token, @Path("playlist_id") String id);
 
     }
 

@@ -10,11 +10,29 @@ public class TidalPlaylist {
 
         List<Item> included;
 
+
+
         public class Item {
             private String id;
             private String type;
             private Attributes attributes;
             private Relationships relationships;
+
+            public String getId() {
+                return id;
+            }
+            public String getType() {
+                return type;
+            }
+
+            public String getTitle() {
+                return attributes.title;
+            }
+
+            public String getName() {
+                return attributes.name;
+            }
+
             public class Attributes {
                 private String title;
                 private String name;
@@ -44,6 +62,10 @@ public class TidalPlaylist {
                     public class Artist {
                         String id;
                         String type;
+
+                        public String getId() {
+                            return id;
+                        }
 
                         @Override
                         public String toString() {
