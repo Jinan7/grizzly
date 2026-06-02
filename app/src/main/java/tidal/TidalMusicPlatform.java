@@ -10,6 +10,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.undefinedbehaviourgames.grizzly.MusicPlatform;
+import com.undefinedbehaviourgames.grizzly.PlaylistItemLab;
 import com.undefinedbehaviourgames.grizzly.PlaylistLab;
 import com.undefinedbehaviourgames.grizzly.R;
 import com.undefinedbehaviourgames.grizzly.State;
@@ -36,6 +37,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import spotify.SpotifyPlaylist;
 
 public class TidalMusicPlatform extends MusicPlatform {
 
@@ -405,5 +407,46 @@ public class TidalMusicPlatform extends MusicPlatform {
         }
 
 
+    }
+
+    public static class PlaylistItemsFetchTask extends AsyncTask<TidalPlaylist, TidalPlaylist.Item , Void> {
+
+        FetchPlaylistItemsCallbacks mCallbacks;
+        public PlaylistItemsFetchTask(FetchPlaylistItemsCallbacks callbacks) {
+            mCallbacks = callbacks;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            mCallbacks = null;
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            mCallbacks = null;
+        }
+
+        @Override
+        protected void onProgressUpdate(TidalPlaylist.Item... values) {
+            super.onProgressUpdate(values);
+
+            PlaylistItemLab.getInstance().add(values[0]);
+            mCallbacks.onFetchPlaylistItems();
+
+
+        }
+
+        @Override
+        protected Void doInBackground(TidalPlaylist... playlists) {
+
+            for (TidalPlaylist.Item item : playlists[0].getTracks()) {
+                publishProgress(item);
+            }
+
+            return null;
+        }
     }
 }

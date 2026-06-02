@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.undefinedbehaviourgames.grizzly.MusicPlatform;
 import com.undefinedbehaviourgames.grizzly.PlaylistItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TidalPlaylist {
@@ -14,7 +15,18 @@ public class TidalPlaylist {
         List<Item> included;
 
 
+        public List<Item> getTracks() {
 
+            List<Item> tracks = new ArrayList<>();
+
+            for (Item item : included) {
+                if (item.getType() == "track") {
+                    tracks.add(item);
+                }
+            }
+
+            return tracks;
+        }
         public class Item implements PlaylistItem {
             private String id;
             private String type;
