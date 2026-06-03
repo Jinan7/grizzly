@@ -272,22 +272,32 @@ public class TidalMusicPlatform extends MusicPlatform {
 
     public void getPlaylistItems(String token, String playlistId, FetchPlaylistItemsCallbacks callbacks) {
 
-        PlaylistItemLab.getInstance().setPlaylistItems(new ArrayList<>());
-        mTidalService.getPlaylistItems(token, playlistId, new String[] {"items", "items.artists"}).enqueue(new Callback<TidalPlaylist>() {
-            @Override
-            public void onResponse(Call<TidalPlaylist> call, Response<TidalPlaylist> response) {
-                if (response.isSuccessful()) {
+        String labPlaylistId = PlaylistItemLab.getInstance().getPlaylistId();
+        String labPlaylistPlatform = PlaylistItemLab.getInstance().getPlatform();
 
-                    TidalPlaylist playlist = response.body();
-                    new PlaylistItemsFetchTask(callbacks).execute(playlist);
+        if (labPlaylistPlatform == null || !labPlaylistPlatform.equals(Platforms.spotify) || labPlaylistId == null || !labPlaylistId.equals(playlistId) || PlaylistLab.getInstance().getState() != State.FETCHED) {
+
+            PlaylistItemLab.getInstance().setPlaylistItems(new ArrayList<>());
+            PlaylistItemLab.getInstance().setPlaylistId(playlistId);
+            PlaylistItemLab.getInstance().setPlaylistId(Platforms.tidal);
+            PlaylistItemLab.getInstance().setState(State.FETCHING);
+            mTidalService.getPlaylistItems(token, playlistId, new String[]{"items", "items.artists"}).enqueue(new Callback<TidalPlaylist>() {
+                @Override
+                public void onResponse(Call<TidalPlaylist> call, Response<TidalPlaylist> response) {
+                    if (response.isSuccessful()) {
+
+                        TidalPlaylist playlist = response.body();
+                        new PlaylistItemsFetchTask(callbacks).execute(playlist);
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<TidalPlaylist> call, Throwable t) {
-                Log.d(TAG, t.toString());
-            }
-        });
+                @Override
+                public void onFailure(Call<TidalPlaylist> call, Throwable t) {
+                    Log.d(TAG, t.toString());
+                }
+            });
+
+        }
     }
     public void getPlaylists(String token, String userId, FetchPlaylistCallbacks callbacks) {
 
@@ -296,7 +306,7 @@ public class TidalMusicPlatform extends MusicPlatform {
         //start a new request if the current loaded playlist does not belong to the requesting user or
         //the current loaded playlist belongs to a null user
         //the current fetched playlist is incomplete
-        if (playListLabPlatform == null || !playListLabPlatform.equals(TAG)|| playlistLabUserId == null || !playlistLabUserId.equals(userId) || PlaylistLab.getInstance().getState() != State.FETCHED)
+        if (playListLabPlatform == null || !playListLabPlatform.equals(Platforms.tidal)|| playlistLabUserId == null || !playlistLabUserId.equals(userId) || PlaylistLab.getInstance().getState() != State.FETCHED)
         {
             //set total to -1 for pass fetchComplete() test in case anything goes wrong
             //if this is not set and an error occurs before any fetch is made
@@ -309,6 +319,7 @@ public class TidalMusicPlatform extends MusicPlatform {
             PlaylistLab.getInstance().setTotal(-1);
             PlaylistLab.getInstance().setState(State.FETCHING);
             PlaylistLab.getInstance().setUserId(userId);
+            PlaylistLab.getInstance().setPlatform(Platforms.tidal);
             PlaylistLab.getInstance().setPlaylist(new ArrayList<>());
 
 //            getPlaylistsRecursive(token, userId, callbacks, 0, 0);

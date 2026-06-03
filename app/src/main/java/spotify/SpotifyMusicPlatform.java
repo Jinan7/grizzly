@@ -288,33 +288,44 @@ public class SpotifyMusicPlatform extends MusicPlatform {
     }
 
     public void getPlaylistItems(String token, String playlistId, FetchPlaylistItemsCallbacks callbacks) {
-        Log.d(TAG, playlistId);
 
-        PlaylistItemLab.getInstance().setPlaylistItems(new ArrayList<>());
-        mSpotifyService.getPlaylistItems(token, playlistId).enqueue(new Callback<SpotifyPlaylist>() {
-            @Override
-            public void onResponse(Call<SpotifyPlaylist> call, Response<SpotifyPlaylist> response) {
-                if (response.isSuccessful()) {
+        String labPlaylistId = PlaylistItemLab.getInstance().getPlaylistId();
+        String labPlaylistPlatform = PlaylistItemLab.getInstance().getPlatform();
 
-                    SpotifyPlaylist playlist = response.body();
-                    new PlaylistItemsFetchTask(callbacks).execute(playlist);
+        if (labPlaylistPlatform == null || !labPlaylistPlatform.equals(Platforms.spotify) || labPlaylistId == null || !labPlaylistId.equals(playlistId) || PlaylistLab.getInstance().getState() != State.FETCHED){
+
+            PlaylistItemLab.getInstance().setPlaylistItems(new ArrayList<>());
+            PlaylistItemLab.getInstance().setPlaylistId(playlistId);
+            PlaylistItemLab.getInstance().setPlaylistId(Platforms.spotify);
+            PlaylistItemLab.getInstance().setState(State.FETCHING);
+            mSpotifyService.getPlaylistItems(token, playlistId).enqueue(new Callback<SpotifyPlaylist>() {
+                @Override
+                public void onResponse(Call<SpotifyPlaylist> call, Response<SpotifyPlaylist> response) {
+                    if (response.isSuccessful()) {
+
+                        SpotifyPlaylist playlist = response.body();
+                        new PlaylistItemsFetchTask(callbacks).execute(playlist);
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<SpotifyPlaylist> call, Throwable t) {
-                Log.d(TAG, t.toString());
-            }
-        });
+                @Override
+                public void onFailure(Call<SpotifyPlaylist> call, Throwable t) {
+                    Log.d(TAG, t.toString());
+                }
+            });
+        }
+
+
+
     }
     public void getPlaylists(String token, String userId, FetchPlaylistCallbacks callbacks) {
 
         String playlistLabUserId = PlaylistLab.getInstance().getUserId();
-
+        String platform = PlaylistLab.getInstance().getPlatform();
         //start a new request if the current loaded playlist does not belong to the requesting user or
         //the current loaded playlist belongs to a null user
         //the current fetched playlist is incomplete
-        if (playlistLabUserId == null || !playlistLabUserId.equals(userId) || PlaylistLab.getInstance().getState() != State.FETCHED)
+        if (platform == null || !platform.equals(Platforms.spotify) || playlistLabUserId == null || !playlistLabUserId.equals(userId) || PlaylistLab.getInstance().getState() != State.FETCHED)
         {
             //set total to -1 for pass fetchComplete() test in case anything goes wrong
             //if this is not set and an error occurs before any fetch is made
@@ -326,6 +337,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
 
             PlaylistLab.getInstance().setTotal(-1);
             PlaylistLab.getInstance().setState(State.FETCHING);
+            PlaylistLab.getInstance().setPlatform(Platforms.spotify);
             PlaylistLab.getInstance().setUserId(userId);
             PlaylistLab.getInstance().setPlaylist(new ArrayList<>());
 
