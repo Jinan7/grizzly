@@ -18,13 +18,26 @@ public class TidalPlaylist {
         public List<Item> getTracks() {
 
             List<Item> tracks = new ArrayList<>();
+            List<Item> artists = new ArrayList<>();
 
             for (Item item : included) {
-                if (item.getType() == "track") {
+                if (item.getType().equals("tracks")) {
                     tracks.add(item);
+                } else if (item.getType().equals("artists")) {
+                    artists.add(item);
                 }
             }
 
+            for (Item track : tracks) {
+                for (Item.Relationships.Artists.Artist a : track.getRelatedArtists()) {
+
+                    for (Item artist : artists) {
+                        if (artist.id.equals(a.id)) {
+                            track.addArtist(artist.attributes.name);
+                        }
+                    }
+                }
+            }
             return tracks;
         }
         public class Item implements PlaylistItem {
@@ -32,6 +45,7 @@ public class TidalPlaylist {
             private String type;
             private Attributes attributes;
             private Relationships relationships;
+            private List<String> artists;
 
             @Override
             public String getId() {
@@ -47,12 +61,21 @@ public class TidalPlaylist {
 
             @Override
             public String getArtist() {
-                return attributes.name;
+                if (artists == null) return "";
+                return String.join(", ", artists);
+            }
+
+            public void addArtist(String artist) {
+                if (artists == null) artists = new ArrayList<>();
+                artists.add(artist);
             }
 
             @Override
             public String getMusicPlatform() {
                 return MusicPlatform.Platforms.tidal;
+            }
+            public List<Relationships.Artists.Artist> getRelatedArtists() {
+                return relationships.artists.data;
             }
 
             public class Attributes {

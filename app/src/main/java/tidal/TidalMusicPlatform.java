@@ -272,15 +272,14 @@ public class TidalMusicPlatform extends MusicPlatform {
 
     public void getPlaylistItems(String token, String playlistId, FetchPlaylistItemsCallbacks callbacks) {
 
-        Log.d(TAG, token);
-        Log.d(TAG, playlistId);
+        PlaylistItemLab.getInstance().setPlaylistItems(new ArrayList<>());
         mTidalService.getPlaylistItems(token, playlistId, new String[] {"items", "items.artists"}).enqueue(new Callback<TidalPlaylist>() {
             @Override
             public void onResponse(Call<TidalPlaylist> call, Response<TidalPlaylist> response) {
                 if (response.isSuccessful()) {
 
-                    TidalPlaylist items = response.body();
-                    Log.d(TAG, items.toString());
+                    TidalPlaylist playlist = response.body();
+                    new PlaylistItemsFetchTask(callbacks).execute(playlist);
                 }
             }
 
