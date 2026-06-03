@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 
 import java.util.List;
 
@@ -21,7 +25,10 @@ public class PlaylistFragment extends Fragment implements MusicPlatform.FetchPla
 
     private static final String ARGS_PLAYLIST_ID = "playlist_id";
     private static final String ARGS_PLATFORM = "platform";
+    private static final String SYNC_TO_DIALOG_TAG = "sync_to_dialog";
     private RecyclerView mRecyclerView;
+    private MaterialCheckBox mSelectAllCheckBox;
+    private MaterialButton mSyncButton;
     public static PlaylistFragment newInstance(String playlistId, String musicServiceName) {
         PlaylistFragment fragment = new PlaylistFragment();
         Bundle args = new Bundle();
@@ -60,9 +67,29 @@ public class PlaylistFragment extends Fragment implements MusicPlatform.FetchPla
 
         View v = inflater.inflate(R.layout.fragment_playlist, container, false);
 
-        mRecyclerView = v.findViewById(R.id.songs_recycler_view);
+        mRecyclerView = (RecyclerView) v.findViewById(R.id.songs_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(new SongAdapter(PlaylistItemLab.getInstance().getPlaylistItems()));
+
+        mSelectAllCheckBox = (MaterialCheckBox) v.findViewById(R.id.select_all_checkbox);
+
+        mSelectAllCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(@NonNull CompoundButton buttonView, boolean isChecked) {
+
+                PlaylistItemLab.getInstance().checkAll(isChecked);
+                mRecyclerView.getAdapter().notifyDataSetChanged();
+            }
+        });
+
+        mSyncButton =(MaterialButton) v.findViewById(R.id.sync_button);
+        mSyncButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SyncToDialog dialog = SyncToDialog.newInstance();
+                dialog.show(getParentFragmentManager(), SYNC_TO_DIALOG_TAG);
+            }
+        });
 
         return v;
     }
@@ -70,16 +97,19 @@ public class PlaylistFragment extends Fragment implements MusicPlatform.FetchPla
 
 
 
-    private class SongHolder extends RecyclerView.ViewHolder {
+    private class SongHolder extends RecyclerView.ViewHolder implements CompoundButton.OnCheckedChangeListener {
 
         private PlaylistItem mItem;
         private TextView mItemTitle;
         private TextView mItemArtist;
+        private MaterialCheckBox mCheckBox;
         public SongHolder(@NonNull View itemView) {
             super(itemView);
 
             mItemTitle =(TextView) itemView.findViewById(R.id.song_name);
             mItemArtist = (TextView) itemView.findViewById(R.id.artist_name);
+            mCheckBox = (MaterialCheckBox) itemView.findViewById(R.id.select_song_checkbox);
+
         }
 
         public void bind(PlaylistItem item) {
@@ -87,8 +117,22 @@ public class PlaylistFragment extends Fragment implements MusicPlatform.FetchPla
             mItem = item;
             mItemTitle.setText(item.getTitle());
             mItemArtist.setText(item.getArtist());
+
+            if (item.isChecked()) {
+                mCheckBox.setChecked(true);
+            } else {
+                mCheckBox.setChecked(false);
+            }
+
+            mCheckBox.setOnCheckedChangeListener(this);
         }
 
+
+        @Override
+        public void onCheckedChanged(@NonNull CompoundButton buttonView, boolean isChecked) {
+
+            mItem.setChecked(isChecked);
+        }
     }
 
 

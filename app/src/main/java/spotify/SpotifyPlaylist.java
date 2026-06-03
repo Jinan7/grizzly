@@ -30,7 +30,7 @@ public class SpotifyPlaylist {
             public Track getTrack() {
                 return item;
             }
-            public class Track implements PlaylistItem{
+            public class Track extends PlaylistItem{
 
                 private String id;
                 private String name;

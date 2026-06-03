@@ -1,9 +1,21 @@
 package com.undefinedbehaviourgames.grizzly;
 
-public interface PlaylistItem {
+public abstract class PlaylistItem {
 
-    String getMusicPlatform();
-    String getId();
-    String getTitle();
-    String getArtist();
+    private boolean mChecked;
+
+    public PlaylistItem() {
+        mChecked = false;
+    }
+    public abstract String getMusicPlatform();
+    public abstract String getId();
+    public abstract String getTitle();
+    public abstract String getArtist();
+    public boolean isChecked() {
+        return mChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        mChecked = checked;
+    }
 }

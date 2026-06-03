@@ -40,7 +40,7 @@ public class TidalPlaylist {
             }
             return tracks;
         }
-        public class Item implements PlaylistItem {
+        public class Item extends PlaylistItem {
             private String id;
             private String type;
             private Attributes attributes;

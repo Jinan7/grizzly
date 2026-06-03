@@ -58,4 +58,10 @@ public class PlaylistItemLab {
     public void setState(State state) {
         mState = state;
     }
+
+    public void checkAll(boolean checked) {
+        for (PlaylistItem item : mPlaylistItems) {
+            item.setChecked(checked);
+        }
+    }
 }
