@@ -34,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -41,8 +42,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Body;
+import retrofit2.http.Field;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -392,6 +396,47 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         //get playlist items
         @GET("playlists/{playlist_id}")
         Call<SpotifyPlaylist> getPlaylistItems(@Header("Authorization") String token, @Path("playlist_id") String id);
+
+        /**
+         *
+         * @param name
+         * @return
+         *
+         *
+         * body:
+         *    name: String (Required)
+         *    public: boolean
+         *    collaborative: boolean
+         *    description: String
+         *
+         * Only name field used for now
+         */
+        @POST("me/playlists")
+        Call<ResponseBody> createPlaylist(@Field("name") String name);
+
+        /**
+         *
+         * @param uris
+         * @return
+         *
+         *
+         * uris - comma seperated list of spotify uris
+         */
+        @POST("playlists/{playlist_id}/items")
+        Call<ResponseBody> addItemstoPlaylist(String[] uris);
+
+        /**
+         *
+         * @param searchQuery
+         * @param track
+         * @param artist
+         * @param type  - list of item types to return, could be artist, track, album. This call is only interested in items labeled as track
+         * @return
+         */
+        @GET("search")
+        Call<ResponseBody> search(@Query("q") String searchQuery, @Query("track") String track, @Query("artist") String artist, @Query("type") String[] type);
+
+
 
     }
 
