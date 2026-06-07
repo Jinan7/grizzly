@@ -33,8 +33,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import spotify.SpotifyPlaylist;
@@ -369,6 +371,14 @@ public class TidalMusicPlatform extends MusicPlatform {
         //get playlist items
         @GET("playlists/{playlist_id}/relationships/items")
         Call<TidalPlaylist> getPlaylistItems(@Header("Authorization") String token, @Path("playlist_id") String id, @Query("include") String[] include);
+
+        @POST("playlist")
+        Call<ResponseBody> createPlaylist(@Body CreateTidalPlaylistBody body);
+        @POST("playlists/{id}/relationships/items")
+        Call<ResponseBody> addToPlaylist(@Path("id") String id, @Body AddTidalTrackBody body);
+
+        @GET("searchResults/{id}")
+        Call<ResponseBody> searchTracks(@Path("id") String id, @Query("include") String[] include);
 
     }
 
