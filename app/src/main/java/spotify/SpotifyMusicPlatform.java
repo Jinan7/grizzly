@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 
 import com.undefinedbehaviourgames.grizzly.MusicPlatform;
 import com.undefinedbehaviourgames.grizzly.Playlist;
+import com.undefinedbehaviourgames.grizzly.PlaylistItem;
 import com.undefinedbehaviourgames.grizzly.PlaylistItemLab;
 import com.undefinedbehaviourgames.grizzly.PlaylistLab;
 import com.undefinedbehaviourgames.grizzly.R;
@@ -228,8 +229,8 @@ public class SpotifyMusicPlatform extends MusicPlatform {
     }
 
     @Override
-    public void fetchPlaylistsItems(String playlistId, FetchPlaylistItemsCallbacks callbacks) {
-        super.fetchPlaylistsItems(playlistId, callbacks);
+    public void fetchPlaylistsItems(String playlistId, String playlistName, FetchPlaylistItemsCallbacks callbacks) {
+        super.fetchPlaylistsItems(playlistId, playlistName, callbacks);
 
         mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
             @Override
@@ -241,7 +242,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
 
                 String token = "Bearer " + accessToken;
                 Log.d(TAG, token);
-                getPlaylistItems(token, playlistId, callbacks);
+                getPlaylistItems(token, playlistId, playlistName, callbacks);
             }
         });
     }
@@ -291,7 +292,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         });
     }
 
-    public void getPlaylistItems(String token, String playlistId, FetchPlaylistItemsCallbacks callbacks) {
+    public void getPlaylistItems(String token, String playlistId, String playlistName, FetchPlaylistItemsCallbacks callbacks) {
 
         String labPlaylistId = PlaylistItemLab.getInstance().getPlaylistId();
         String labPlaylistPlatform = PlaylistItemLab.getInstance().getPlatform();
@@ -300,6 +301,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
 
             PlaylistItemLab.getInstance().setPlaylistItems(new ArrayList<>());
             PlaylistItemLab.getInstance().setPlaylistId(playlistId);
+            PlaylistItemLab.getInstance().setPlaylistName(playlistName);
             PlaylistItemLab.getInstance().setPlaylistId(Platforms.spotify);
             PlaylistItemLab.getInstance().setState(State.FETCHING);
             mSpotifyService.getPlaylistItems(token, playlistId).enqueue(new Callback<SpotifyPlaylist>() {
@@ -382,6 +384,47 @@ public class SpotifyMusicPlatform extends MusicPlatform {
         });
     }
 
+    @Override
+    public void searchTrack(PlaylistItem item) {
+
+        String title = item.getTitle();
+        String artist = item.getArtist();
+
+        mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction(){
+
+            @Override
+            public void execute(@Nullable String accessToken, @Nullable String idToken, @Nullable AuthorizationException ex) {
+                if (ex != null) return;
+
+                String token = "Bearer " + accessToken;
+                searchTrack(token, title, artist);
+            }
+        });
+
+
+    }
+
+    public void searchTrack(String token, String track, String artist) {
+        String query = "track:"+track + " artist:"+artist;
+        mSpotifyService.search(token, query, track, artist, new String[] {"track"}).enqueue(new Callback<SpotifySearchResult>() {
+            @Override
+            public void onResponse(Call<SpotifySearchResult> call, Response<SpotifySearchResult> response) {
+
+                if (response.isSuccessful()) {
+                    SpotifySearchResult result = response.body();
+                    Log.d(TAG, result.toString());
+                }else{
+                    Log.d(TAG, response.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SpotifySearchResult> call, Throwable t) {
+                Log.d(TAG, t.toString());
+            }
+        });
+    }
+
     //spotify service interface
      public interface SpotifyService {
 
@@ -434,7 +477,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
          * @return
          */
         @GET("search")
-        Call<ResponseBody> search(@Query("q") String searchQuery, @Query("track") String track, @Query("artist") String artist, @Query("type") String[] type);
+        Call<SpotifySearchResult> search(@Header("Authorization") String token, @Query("q") String searchQuery, @Query("track") String track, @Query("artist") String artist, @Query("type") String[] type);
 
 
 

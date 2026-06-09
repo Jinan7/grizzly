@@ -254,8 +254,8 @@ public class TidalMusicPlatform extends MusicPlatform {
     }
 
     @Override
-    public void fetchPlaylistsItems(String playlistId, FetchPlaylistItemsCallbacks callbacks) {
-        super.fetchPlaylistsItems(playlistId, callbacks);
+    public void fetchPlaylistsItems(String playlistId, String playlistName, FetchPlaylistItemsCallbacks callbacks) {
+        super.fetchPlaylistsItems(playlistId, playlistName, callbacks);
 
         mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
             @Override
@@ -267,12 +267,12 @@ public class TidalMusicPlatform extends MusicPlatform {
 
                 String token = "Bearer " + accessToken;
                 Log.d(TAG, token);
-                getPlaylistItems(token, playlistId, callbacks);
+                getPlaylistItems(token, playlistId, playlistName, callbacks);
             }
         });
     }
 
-    public void getPlaylistItems(String token, String playlistId, FetchPlaylistItemsCallbacks callbacks) {
+    public void getPlaylistItems(String token, String playlistId, String playlistName, FetchPlaylistItemsCallbacks callbacks) {
 
         String labPlaylistId = PlaylistItemLab.getInstance().getPlaylistId();
         String labPlaylistPlatform = PlaylistItemLab.getInstance().getPlatform();
@@ -281,6 +281,7 @@ public class TidalMusicPlatform extends MusicPlatform {
 
             PlaylistItemLab.getInstance().setPlaylistItems(new ArrayList<>());
             PlaylistItemLab.getInstance().setPlaylistId(playlistId);
+            PlaylistItemLab.getInstance().setPlaylistName(playlistName);
             PlaylistItemLab.getInstance().setPlaylistId(Platforms.tidal);
             PlaylistItemLab.getInstance().setState(State.FETCHING);
             mTidalService.getPlaylistItems(token, playlistId, new String[]{"items", "items.artists"}).enqueue(new Callback<TidalPlaylist>() {

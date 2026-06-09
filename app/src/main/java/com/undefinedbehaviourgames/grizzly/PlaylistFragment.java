@@ -1,6 +1,9 @@
 package com.undefinedbehaviourgames.grizzly;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,17 +26,23 @@ import tidal.TidalMusicPlatform;
 
 public class PlaylistFragment extends Fragment implements MusicPlatform.FetchPlaylistItemsCallbacks {
 
+    private static final String TAG = "PlaylistFragment";
     private static final String ARGS_PLAYLIST_ID = "playlist_id";
     private static final String ARGS_PLATFORM = "platform";
+    private static final String ARGS_PLAYLIST_NAME = "playlist_name";
     private static final String SYNC_TO_DIALOG_TAG = "sync_to_dialog";
+    private static final int REQUEST_CODE_SYNC_TO = 0;
     private RecyclerView mRecyclerView;
     private MaterialCheckBox mSelectAllCheckBox;
     private MaterialButton mSyncButton;
-    public static PlaylistFragment newInstance(String playlistId, String musicServiceName) {
+    private String mPlaylistName;
+
+    public static PlaylistFragment newInstance(String playlistId, String musicServiceName, String playlistName) {
         PlaylistFragment fragment = new PlaylistFragment();
         Bundle args = new Bundle();
         args.putString(ARGS_PLAYLIST_ID, playlistId);
         args.putString(ARGS_PLATFORM, musicServiceName);
+        args.putString(ARGS_PLAYLIST_NAME, playlistName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -45,13 +54,15 @@ public class PlaylistFragment extends Fragment implements MusicPlatform.FetchPla
 
         String playlistId = getArguments().getString(ARGS_PLAYLIST_ID);
         String platform = getArguments().getString(ARGS_PLATFORM);
+        mPlaylistName = getArguments().getString(ARGS_PLAYLIST_NAME);
 
+        Log.d(TAG, mPlaylistName);
         switch (platform) {
             case MusicPlatform.Platforms.spotify:
-                SpotifyMusicPlatform.getInstance(getContext()).fetchPlaylistsItems(playlistId, this);
+                SpotifyMusicPlatform.getInstance(getContext()).fetchPlaylistsItems(playlistId, mPlaylistName, this);
                 break;
             case MusicPlatform.Platforms.tidal:
-                TidalMusicPlatform.getInstance(getContext()).fetchPlaylistsItems(playlistId, this);
+                TidalMusicPlatform.getInstance(getContext()).fetchPlaylistsItems(playlistId, mPlaylistName,this);
                 break;
         }
 
@@ -87,6 +98,7 @@ public class PlaylistFragment extends Fragment implements MusicPlatform.FetchPla
             @Override
             public void onClick(View v) {
                 SyncToDialog dialog = SyncToDialog.newInstance();
+                dialog.setTargetFragment(PlaylistFragment.this, REQUEST_CODE_SYNC_TO);
                 dialog.show(getParentFragmentManager(), SYNC_TO_DIALOG_TAG);
             }
         });
@@ -95,7 +107,20 @@ public class PlaylistFragment extends Fragment implements MusicPlatform.FetchPla
     }
 
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (resultCode != Activity.RESULT_OK) return;
+
+        switch (requestCode) {
+            case REQUEST_CODE_SYNC_TO:
+                String[] syncTo = data.getStringArrayExtra(SyncToDialog.EXTRA_SYNC_TO);
+                Intent intent = SyncActivity.newIntent(getContext(), syncTo);
+                startActivity(intent);
+
+        }
+    }
 
     private class SongHolder extends RecyclerView.ViewHolder implements CompoundButton.OnCheckedChangeListener {
 

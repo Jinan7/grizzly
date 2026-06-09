@@ -93,7 +93,7 @@ public class UserLibraryFragment extends Fragment implements MusicPlatform.Fetch
 
         @Override
         public void onClick(View v) {
-            Intent intent = PlaylistActivity.newIntent(getContext(), mPlaylist.getID(), mPlaylist.getMusicServiceName());
+            Intent intent = PlaylistActivity.newIntent(getContext(), mPlaylist.getID(), mPlaylist.getMusicServiceName(), mPlaylist.getName());
             startActivity(intent);
         }
     }

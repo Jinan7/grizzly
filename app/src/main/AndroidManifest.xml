@@ -16,9 +16,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Grizzly">
         <activity
-            android:name=".PlaylistActivity"
+            android:name=".SyncActivity"
             android:exported="false" />
-        <!-- <queries> -->
+        <activity
+            android:name=".PlaylistActivity"
+            android:exported="false" /> <!-- <queries> -->
         <!-- <intent> -->
         <!-- <action android:name="com.amazon.identity.auth.device.authorization.MapAuthorizationService"/> -->
         <!-- </intent> -->

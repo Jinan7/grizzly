@@ -46,10 +46,10 @@ public class MusicPlatform {
     public void signIn(AuthorizationResponse response, Callbacks callbacks){
     }
 
-    public void fetchPlaylists(String userId, FetchPlaylistCallbacks callbacks) {
+    public void fetchPlaylists(String userId, FetchPlaylistCallbacks callbacks) {}
+    public void fetchPlaylistsItems(String playlistId, String playlistName, FetchPlaylistItemsCallbacks callbacks) {}
+    public void searchTrack(PlaylistItem item) {}
 
-    }
-    public void fetchPlaylistsItems(String playlistId, FetchPlaylistItemsCallbacks callbacks) {}
     public int getIconResourceId() {
         return mIconResourceId;
     }

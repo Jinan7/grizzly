@@ -9,6 +9,7 @@ public class PlaylistItemLab {
     private List<PlaylistItem> mPlaylistItems;
     private String mPlatform;
     private String mPlaylistId;
+    private String mPlaylistName;
     private State mState;
     private PlaylistItemLab() {
         mPlaylistItems = new ArrayList<>();
@@ -50,6 +51,10 @@ public class PlaylistItemLab {
     public void setPlaylistId(String playlistId) {
         mPlaylistId = playlistId;
     }
+
+    public void setPlaylistName(String playlistName) { mPlaylistName = playlistName;}
+
+    public String getPlaylistName() {return mPlaylistName;}
 
     public State getState() {
         return mState;
