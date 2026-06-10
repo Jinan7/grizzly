@@ -18,4 +18,5 @@ public abstract class PlaylistItem {
     public void setChecked(boolean checked) {
         mChecked = checked;
     }
+
 }
