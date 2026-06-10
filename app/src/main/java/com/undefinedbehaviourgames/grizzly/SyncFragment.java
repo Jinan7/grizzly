@@ -104,6 +104,7 @@ public class SyncFragment extends Fragment implements SyncLab.Callbacks {
         @Override
         public void onBindViewHolder(@NonNull SyncHolder holder, int position) {
 
+            holder.bind(mSyncItemList.get(position));
         }
 
         @Override

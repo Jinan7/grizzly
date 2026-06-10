@@ -23,7 +23,7 @@ public class SyncActivity extends SingleFragmentActivity {
     @Override
     public Fragment createFragment() {
         String [] syncTo = getIntent().getStringArrayExtra(EXTRA_SYNC_TO);
-        boolean newSync = getIntent().getBooleanExtra(EXTRA_NEW_SYNC);
+        boolean newSync = getIntent().getBooleanExtra(EXTRA_NEW_SYNC, false);
         return SyncFragment.newInstance(syncTo, newSync);
     }
 

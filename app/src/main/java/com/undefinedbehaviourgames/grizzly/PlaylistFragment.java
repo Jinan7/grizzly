@@ -116,7 +116,7 @@ public class PlaylistFragment extends Fragment implements MusicPlatform.FetchPla
         switch (requestCode) {
             case REQUEST_CODE_SYNC_TO:
                 String[] syncTo = data.getStringArrayExtra(SyncToDialog.EXTRA_SYNC_TO);
-                Intent intent = SyncActivity.newIntent(getContext(), syncTo);
+                Intent intent = SyncActivity.newIntent(getContext(), syncTo, true);
                 startActivity(intent);
 
         }
