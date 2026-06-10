@@ -13,7 +13,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class SyncFragment extends Fragment {
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+
+import java.util.List;
+
+public class SyncFragment extends Fragment implements SyncLab.Callbacks {
 
     private static final String ARG_SYNC_TO = "sync_to";
     private static final String ARG_NEW_SYNC = "new_sync";
@@ -59,19 +63,37 @@ public class SyncFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_syncs, container, false);
         mRecyclerView = (RecyclerView) v.findViewById(R.id.syncs_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mRecyclerView.setAdapter(new SyncAdapter());
+        mRecyclerView.setAdapter(new SyncAdapter(SyncLab.getInstance(this).getSyncTasks()));
         return v;
+    }
+
+    @Override
+    public void onProgressUpdate() {
+        mRecyclerView.getAdapter().notifyDataSetChanged();
     }
 
 
     private class SyncHolder extends RecyclerView.ViewHolder {
+
+        private LinearProgressIndicator mLinearProgressIndicator;
         public SyncHolder(@NonNull View itemView) {
             super(itemView);
+            mLinearProgressIndicator = itemView.findViewById(R.id.sync_progress);
+        }
+
+        public void bind(SyncTask syncTask) {
+            mLinearProgressIndicator.setMax(syncTask.getTotal());
+            mLinearProgressIndicator.setProgress(syncTask.getProgress());
         }
     }
 
     private class SyncAdapter extends RecyclerView.Adapter<SyncHolder> {
 
+        List<SyncTask> mSyncItemList;
+
+        public SyncAdapter(List<SyncTask> syncItems) {
+            mSyncItemList = syncItems;
+        }
         @NonNull
         @Override
         public SyncHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -86,7 +108,7 @@ public class SyncFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return 10;
+            return mSyncItemList.size();
         }
     }
 
@@ -113,7 +135,7 @@ public class SyncFragment extends Fragment {
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
-            SyncLab.getInstance().addSyncTask(mSyncTask);
+            SyncLab.getInstance(SyncFragment.this).addSyncTask(mSyncTask);
         }
     }
 }

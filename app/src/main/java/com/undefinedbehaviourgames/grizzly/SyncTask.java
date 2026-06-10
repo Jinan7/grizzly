@@ -5,6 +5,8 @@ import java.util.List;
 
 public class SyncTask {
 
+    private int total;
+    private int progress;
     private String playlistName;
     private String mSyncTo;
 
@@ -14,6 +16,8 @@ public class SyncTask {
         mSyncTo = syncTo;
         playlistName = "New Playlist";
         items = new ArrayList<>();
+        total = 50;
+        progress = 0;
     }
 
     public void addItem(SyncItem item) {
@@ -23,4 +27,11 @@ public class SyncTask {
     public void setPlaylistName(String name) {
         playlistName = name;
     }
+
+    public void addProgress() {
+        progress += 1;
+    }
+
+    public int getTotal() { return total;}
+    public int getProgress() { return progress;}
 }
