@@ -113,6 +113,7 @@ public class SyncFragment extends Fragment {
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
+            SyncLab.getInstance().addSyncTask(mSyncTask);
         }
     }
 }
