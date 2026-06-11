@@ -10,6 +10,15 @@ public class SpotifySearchResult implements SearchResult {
 
     private Track tracks;
 
+    @Override
+    public String getId() {
+        return tracks.items.get(0).id;
+    }
+    @Override
+    public String getUri() {
+        return tracks.items.get(0).uri;
+    }
+
     public class Track {
         private List<Item> items;
 
@@ -18,6 +27,7 @@ public class SpotifySearchResult implements SearchResult {
             private String id;
             private String name;
             private String type;
+            private String uri;
             private List<Artist> artists;
 
             public class Artist {

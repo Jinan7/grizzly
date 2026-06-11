@@ -262,14 +262,9 @@ public class SpotifyMusicPlatform extends MusicPlatform {
     public void sync(Handler handler, SyncTask syncTask) {
         super.sync(handler, syncTask);
 
-        NewPlaylist newPlaylist = createPlaylist(syncTask.getPlaylistName());
-        handler.sendEmptyMessage(0);
+        createPlaylist(handler, syncTask);
 
-        for (SyncItem item : syncTask.getItems())  {
 
-            SpotifySearchResult result = (SpotifySearchResult) searchTrack(item);
-            Log.d(TAG, result.toString());
-        }
     }
 
     //get user
@@ -402,46 +397,53 @@ public class SpotifyMusicPlatform extends MusicPlatform {
     }
 
     @Override
-    public NewPlaylist createPlaylist(String name) {
+    public void createPlaylist(Handler handler, SyncTask syncTask) {
 
-        SpotifyNewPlaylist newPlaylist = new SpotifyNewPlaylist();
         mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
             @Override
             public void execute(@Nullable String accessToken, @Nullable String idToken, @Nullable AuthorizationException ex) {
                 if (ex != null) return;
 
                 String token = "Bearer " + accessToken;
-                createPlaylist(token, name, newPlaylist);
+                createPlaylist(token, handler, syncTask);
             }
         });
 
-        return newPlaylist;
     }
 
-    public NewPlaylist createPlaylist(String token, String name, NewPlaylist newPlaylist) {
+    public void createPlaylist(String token, Handler handler, SyncTask syncTask) {
 
         CreatePlaylistBody body = new CreatePlaylistBody();
-        body.name = name;
+        body.name = syncTask.getPlaylistName();
         body.description = "";
 
 
         try {
+
             Response<SpotifyNewPlaylist> response = mSpotifyService.createPlaylist(token, body).execute();
-            newPlaylist = response.body();
+            SpotifyNewPlaylist newPlaylist = response.body();
+
+            syncTask.addProgress();
+            handler.sendEmptyMessage(0);
+
+            for (SyncItem item : syncTask.getItems())  {
+
+                searchTrack(item, handler, newPlaylist, syncTask);
+
+            }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return newPlaylist;
 
     }
 
     @Override
-    public SearchResult searchTrack(SyncItem item) {
+    public void searchTrack(SyncItem item, Handler handler, NewPlaylist playlist, SyncTask syncTask) {
 
         String title = item.getTitle();
         String artist = item.getArtist();
-        SpotifySearchResult result = new SpotifySearchResult();
         mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction(){
 
             @Override
@@ -449,28 +451,68 @@ public class SpotifyMusicPlatform extends MusicPlatform {
                 if (ex != null) return;
 
                 String token = "Bearer " + accessToken;
-                searchTrack(token, title, artist, result);
+                searchTrack(token, title, artist, handler, playlist, syncTask);
             }
         });
 
-        return result;
     }
 
-    public void searchTrack(String token, String track, String artist, SpotifySearchResult result) {
+    public void searchTrack(String token, String track, String artist, Handler handler, NewPlaylist playlist, SyncTask syncTask) {
         String query = "track:"+track + " artist:"+artist;
 
         try {
             Response<SpotifySearchResult> response = mSpotifyService.search(token, query, track, artist, new String[] {"track"}).execute();
-            result = response.body();
+            SpotifySearchResult result = response.body();
+            syncTask.addProgress();
+            handler.sendEmptyMessage(0);
+            addTrack( playlist.getId(), result.getUri(), handler, syncTask);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+
     }
 
+    public void addTrack(String playlistId, String trackUri, Handler handler, SyncTask syncTask) {
+
+        mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
+            @Override
+            public void execute(@Nullable String accessToken, @Nullable String idToken, @Nullable AuthorizationException ex) {
+
+                if (ex != null) return ;
+                String token = "Bearer " + accessToken;
+                addTrack(token, playlistId, trackUri, handler, syncTask);
+            }
+        });
+    }
+
+    public void addTrack(String token, String playlistId, String trackUri, Handler handler, SyncTask syncTask) {
+
+
+        AddToPlaylistBody body = new AddToPlaylistBody();
+        body.uris = new String[] { trackUri };
+        Log.d(TAG, playlistId);
+        Log.d(TAG, trackUri);
+        try {
+            Response<ResponseBody> response = mSpotifyService.addItemstoPlaylist(token, playlistId, body).execute();
+            ResponseBody result = response.body();
+            syncTask.addProgress();
+            handler.sendEmptyMessage(0);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+
+    }
     public class CreatePlaylistBody {
         String name;
         String description;
+    }
+
+    public class AddToPlaylistBody {
+        String [] uris;
     }
     //spotify service interface
      public interface SpotifyService {
@@ -508,14 +550,14 @@ public class SpotifyMusicPlatform extends MusicPlatform {
 
         /**
          *
-         * @param uris
+         * @param
          * @return
          *
          *
          * uris - comma seperated list of spotify uris
          */
         @POST("playlists/{playlist_id}/items")
-        Call<ResponseBody> addItemstoPlaylist(String[] uris);
+        Call<ResponseBody> addItemstoPlaylist(@Header("Authorization") String token, @Path("playlist_id") String playlistId, @Body AddToPlaylistBody body);
 
         /**
          *

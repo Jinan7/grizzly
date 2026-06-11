@@ -4,4 +4,5 @@ public interface NewPlaylist {
 
     String getName();
     String getId();
+
 }

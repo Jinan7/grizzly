@@ -48,15 +48,15 @@ public class MusicPlatform {
 
     }
 
-    public NewPlaylist createPlaylist(String name) {
-        return null;
+    public void createPlaylist(Handler handler, SyncTask task) {
+
     }
     public void signIn(AuthorizationResponse response, Callbacks callbacks){
     }
 
     public void fetchPlaylists(String userId, FetchPlaylistCallbacks callbacks) {}
     public void fetchPlaylistsItems(String playlistId, String playlistName, FetchPlaylistItemsCallbacks callbacks) {}
-    public SearchResult searchTrack(SyncItem item) { return null; }
+    public void searchTrack(SyncItem item, Handler handler, NewPlaylist playlist, SyncTask syncTask) { }
 
     public int getIconResourceId() {
         return mIconResourceId;
