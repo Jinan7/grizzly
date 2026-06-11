@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Base64;
 import android.util.Log;
 
@@ -12,12 +13,16 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.undefinedbehaviourgames.grizzly.MusicPlatform;
+import com.undefinedbehaviourgames.grizzly.NewPlaylist;
 import com.undefinedbehaviourgames.grizzly.Playlist;
 import com.undefinedbehaviourgames.grizzly.PlaylistItem;
 import com.undefinedbehaviourgames.grizzly.PlaylistItemLab;
 import com.undefinedbehaviourgames.grizzly.PlaylistLab;
 import com.undefinedbehaviourgames.grizzly.R;
+import com.undefinedbehaviourgames.grizzly.SearchResult;
 import com.undefinedbehaviourgames.grizzly.State;
+import com.undefinedbehaviourgames.grizzly.SyncItem;
+import com.undefinedbehaviourgames.grizzly.SyncTask;
 
 import net.openid.appauth.AuthState;
 import net.openid.appauth.AuthorizationException;
@@ -45,6 +50,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
@@ -62,7 +68,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
     private static final String TOKEN_URL = "https://accounts.spotify.com/api/token";
     private static final String CLIENT_ID = "d463534ec77b4599be1f8178143905d0";
     private static final String REDIRECT_URI = "com.undefinedbehaviourgames.grizzly://callback";
-    private static final String SCOPE = "user-read-private user-read-email playlist-read-private playlist-read-collaborative";
+    private static final String SCOPE = "user-read-private user-read-email playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private";
     public static final int SPOTIFY_SIGN_IN_REQUEST_CODE = 0;
 
     private AuthorizationServiceConfiguration mServiceConfig;
@@ -252,8 +258,19 @@ public class SpotifyMusicPlatform extends MusicPlatform {
     }
 
 
+    @Override
+    public void sync(Handler handler, SyncTask syncTask) {
+        super.sync(handler, syncTask);
 
+        NewPlaylist newPlaylist = createPlaylist(syncTask.getPlaylistName());
+        handler.sendEmptyMessage(0);
 
+        for (SyncItem item : syncTask.getItems())  {
+
+            SpotifySearchResult result = (SpotifySearchResult) searchTrack(item);
+            Log.d(TAG, result.toString());
+        }
+    }
 
     //get user
     public void getUser(String token, Callbacks callbacks) {
@@ -385,11 +402,46 @@ public class SpotifyMusicPlatform extends MusicPlatform {
     }
 
     @Override
-    public void searchTrack(PlaylistItem item) {
+    public NewPlaylist createPlaylist(String name) {
+
+        SpotifyNewPlaylist newPlaylist = new SpotifyNewPlaylist();
+        mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
+            @Override
+            public void execute(@Nullable String accessToken, @Nullable String idToken, @Nullable AuthorizationException ex) {
+                if (ex != null) return;
+
+                String token = "Bearer " + accessToken;
+                createPlaylist(token, name, newPlaylist);
+            }
+        });
+
+        return newPlaylist;
+    }
+
+    public NewPlaylist createPlaylist(String token, String name, NewPlaylist newPlaylist) {
+
+        CreatePlaylistBody body = new CreatePlaylistBody();
+        body.name = name;
+        body.description = "";
+
+
+        try {
+            Response<SpotifyNewPlaylist> response = mSpotifyService.createPlaylist(token, body).execute();
+            newPlaylist = response.body();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return newPlaylist;
+
+    }
+
+    @Override
+    public SearchResult searchTrack(SyncItem item) {
 
         String title = item.getTitle();
         String artist = item.getArtist();
-
+        SpotifySearchResult result = new SpotifySearchResult();
         mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction(){
 
             @Override
@@ -397,34 +449,29 @@ public class SpotifyMusicPlatform extends MusicPlatform {
                 if (ex != null) return;
 
                 String token = "Bearer " + accessToken;
-                searchTrack(token, title, artist);
+                searchTrack(token, title, artist, result);
             }
         });
 
-
+        return result;
     }
 
-    public void searchTrack(String token, String track, String artist) {
+    public void searchTrack(String token, String track, String artist, SpotifySearchResult result) {
         String query = "track:"+track + " artist:"+artist;
-        mSpotifyService.search(token, query, track, artist, new String[] {"track"}).enqueue(new Callback<SpotifySearchResult>() {
-            @Override
-            public void onResponse(Call<SpotifySearchResult> call, Response<SpotifySearchResult> response) {
 
-                if (response.isSuccessful()) {
-                    SpotifySearchResult result = response.body();
-                    Log.d(TAG, result.toString());
-                }else{
-                    Log.d(TAG, response.toString());
-                }
-            }
+        try {
+            Response<SpotifySearchResult> response = mSpotifyService.search(token, query, track, artist, new String[] {"track"}).execute();
+            result = response.body();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-            @Override
-            public void onFailure(Call<SpotifySearchResult> call, Throwable t) {
-                Log.d(TAG, t.toString());
-            }
-        });
     }
 
+    public class CreatePlaylistBody {
+        String name;
+        String description;
+    }
     //spotify service interface
      public interface SpotifyService {
 
@@ -442,7 +489,7 @@ public class SpotifyMusicPlatform extends MusicPlatform {
 
         /**
          *
-         * @param name
+         * @param
          * @return
          *
          *
@@ -454,8 +501,10 @@ public class SpotifyMusicPlatform extends MusicPlatform {
          *
          * Only name field used for now
          */
+
         @POST("me/playlists")
-        Call<ResponseBody> createPlaylist(@Field("name") String name);
+        Call<SpotifyNewPlaylist> createPlaylist(@Header("Authorization") String token, @Body CreatePlaylistBody body);
+
 
         /**
          *

@@ -3,6 +3,7 @@ package com.undefinedbehaviourgames.grizzly;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Base64;
 
 import net.openid.appauth.AuthorizationResponse;
@@ -43,12 +44,19 @@ public class MusicPlatform {
 
     }
 
+    public void sync(Handler handler, SyncTask syncTask) {
+
+    }
+
+    public NewPlaylist createPlaylist(String name) {
+        return null;
+    }
     public void signIn(AuthorizationResponse response, Callbacks callbacks){
     }
 
     public void fetchPlaylists(String userId, FetchPlaylistCallbacks callbacks) {}
     public void fetchPlaylistsItems(String playlistId, String playlistName, FetchPlaylistItemsCallbacks callbacks) {}
-    public void searchTrack(PlaylistItem item) {}
+    public SearchResult searchTrack(SyncItem item) { return null; }
 
     public int getIconResourceId() {
         return mIconResourceId;

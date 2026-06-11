@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,7 +46,7 @@ public class SyncFragment extends Fragment implements SyncLab.Callbacks {
         if (newSync == true) {
 
             for (String string: syncTo) {
-                SyncTask newSyncTask =  new SyncTask(string);
+                SyncTask newSyncTask =  new SyncTask(string, PlaylistLab.getInstance().getPlatform());
                 newSyncTask.setPlaylistName(PlaylistItemLab.getInstance().getPlaylistName());
 
                 new SyncHelper(newSyncTask).execute();
@@ -76,14 +78,38 @@ public class SyncFragment extends Fragment implements SyncLab.Callbacks {
     private class SyncHolder extends RecyclerView.ViewHolder {
 
         private LinearProgressIndicator mLinearProgressIndicator;
+        private ImageView mSyncFrom;
+        private ImageView mSyncTo;
+        private TextView mTextView;
         public SyncHolder(@NonNull View itemView) {
             super(itemView);
             mLinearProgressIndicator = itemView.findViewById(R.id.sync_progress);
+            mSyncFrom = itemView.findViewById(R.id.sync_from);
+            mSyncTo = itemView.findViewById(R.id.sync_to);
+            mTextView = itemView.findViewById(R.id.sync_playlist_name);
         }
 
         public void bind(SyncTask syncTask) {
             mLinearProgressIndicator.setMax(syncTask.getTotal());
             mLinearProgressIndicator.setProgress(syncTask.getProgress());
+            mTextView.setText(syncTask.getPlaylistName());
+            switch (syncTask.getSyncTo()) {
+                case MusicPlatform.Platforms.spotify:
+                    mSyncTo.setImageResource(R.drawable.spotify);
+                    break;
+                case MusicPlatform.Platforms.tidal:
+                    mSyncTo.setImageResource(R.drawable.tidal);
+                    break;
+            }
+
+            switch (syncTask.getSyncFrom()) {
+                case MusicPlatform.Platforms.spotify:
+                    mSyncFrom.setImageResource(R.drawable.spotify);
+                    break;
+                case MusicPlatform.Platforms.tidal:
+                    mSyncFrom.setImageResource(R.drawable.tidal);
+                    break;
+            }
         }
     }
 
@@ -123,20 +149,24 @@ public class SyncFragment extends Fragment implements SyncLab.Callbacks {
         @Override
         protected Void doInBackground(Void... tasks) {
 
+            int total = 1;
             for (PlaylistItem item : PlaylistItemLab.getInstance().getPlaylistItems()) {
 
                 if (item.isChecked()) {
                     SyncItem syncItem = new SyncItem(item.getTitle(), item.getArtist());
                     mSyncTask.addItem(syncItem);
+                    total +=2;
                 }
             }
+
+            mSyncTask.setTotal(total);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
-            SyncLab.getInstance(SyncFragment.this).addSyncTask(mSyncTask);
+            SyncLab.getInstance(SyncFragment.this).addSyncTask(getContext(), mSyncTask);
         }
     }
 }

@@ -15,6 +15,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import spotify.SpotifyMusicPlatform;
+
 public class SyncLab {
 
     private static SyncLab sSingleton;
@@ -54,7 +56,7 @@ public class SyncLab {
         return sSingleton;
     }
 
-    public void addSyncTask(SyncTask task) {
+    public void addSyncTask(Context context, SyncTask task) {
         mSyncTasks.add(task);
 
         mCallbacks.get().onProgressUpdate();
@@ -64,11 +66,10 @@ public class SyncLab {
                    @Override
                    public void run() {
 
-                       for (int i = 0; i < 50; i ++) {
+                       switch (task.getSyncTo()) {
 
-                           task.addProgress();
-                           mHandler.sendEmptyMessage(0);
-                           SystemClock.sleep(1000);
+                           case MusicPlatform.Platforms.spotify:
+                               SpotifyMusicPlatform.getInstance(context).sync(mHandler, task);
                        }
                    }
                }

@@ -5,18 +5,19 @@ import java.util.List;
 
 public class SyncTask {
 
-    private int total;
+    private int mTotal;
     private int progress;
     private String playlistName;
     private String mSyncTo;
+    private String mSyncFrom;
 
     private List<SyncItem> items;
 
-    public SyncTask(String syncTo) {
+    public SyncTask(String syncTo, String syncFrom) {
         mSyncTo = syncTo;
+        mSyncFrom = syncFrom;
         playlistName = "New Playlist";
         items = new ArrayList<>();
-        total = 50;
         progress = 0;
     }
 
@@ -32,6 +33,13 @@ public class SyncTask {
         progress += 1;
     }
 
-    public int getTotal() { return total;}
+    public int getTotal() { return mTotal;}
+    public void setTotal(int total) {
+        mTotal = total;
+    }
     public int getProgress() { return progress;}
+    public String getSyncTo() {return mSyncTo;}
+    public String getSyncFrom() {return mSyncFrom;}
+    public String getPlaylistName() {return playlistName;}
+    public List<SyncItem> getItems() { return items;}
 }

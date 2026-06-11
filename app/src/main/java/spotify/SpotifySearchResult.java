@@ -2,9 +2,11 @@ package spotify;
 
 import androidx.annotation.NonNull;
 
+import com.undefinedbehaviourgames.grizzly.SearchResult;
+
 import java.util.List;
 
-public class SpotifySearchResult {
+public class SpotifySearchResult implements SearchResult {
 
     private Track tracks;
 
