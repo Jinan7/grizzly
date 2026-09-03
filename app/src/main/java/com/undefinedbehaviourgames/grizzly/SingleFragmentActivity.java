@@ -34,6 +34,8 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
                 .setAppearanceLightNavigationBars(false);
 
 
+        //make nav system bar transparent or make is same color
+        //as nav bar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             getWindow().setNavigationBarContrastEnforced(false);
         } else {
